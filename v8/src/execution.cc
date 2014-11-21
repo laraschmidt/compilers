@@ -94,13 +94,13 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
     value =
         CALL_GENERATED_CODE(stub_entry, function_entry, func, recv, argc, argv);
 
-    gettimeofday(&end, NULL);
+  /*  gettimeofday(&end, NULL);
 useconds = end.tv_usec - start.tv_usec;
 if(useconds<0) useconds=0;
 if(function->IsOptimized())
    PrintF("Esha_time Optimised execution is now %ld \n", useconds);
 else
-   PrintF("Esha_time Full execution is now %ld \n", useconds);
+   PrintF("Esha_time Full execution is now %ld \n", useconds);*/
 }
 
 #ifdef VERIFY_HEAP

@@ -541,8 +541,8 @@ void OptimizedCompileJob::RecordOptimizationStats() {
            compiled_functions,
            code_size,
            compilation_time);
-    int Mycompilationtime = (ms_creategraph + ms_optimize + ms_codegen)*1000;
-    PrintF("Esha_time Optimized compilation time is now %d\n",Mycompilationtime);
+   // int Mycompilationtime = (ms_creategraph + ms_optimize + ms_codegen)*1000;
+    //PrintF("Esha_time Optimized compilation time is now %d\n",Mycompilationtime);
 }
   if (FLAG_hydrogen_stats) {
     isolate()->GetHStatistics()->IncrementSubtotals(time_taken_to_create_graph_,
