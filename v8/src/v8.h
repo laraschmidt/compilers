@@ -60,8 +60,6 @@ class V8 : public AllStatic {
   static void FatalProcessOutOfMemory(const char* location,
                                       bool take_snapshot = false);
 
-  static void LaraConvert(v8::Handle<String> source);
-
   // Allows an entropy source to be provided for use in random number
   // generation.
   static void SetEntropySource(EntropySource source);

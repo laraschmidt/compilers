@@ -304,8 +304,7 @@ void BreakableStatementChecker::VisitSuperReference(SuperReference* expr) {}
 
 bool FullCodeGenerator::MakeCode(CompilationInfo* info) {
   Isolate* isolate = info->isolate();
-  struct timeval start, end;
-  long mtime, seconds, useconds;    
+  struct timeval start;
   gettimeofday(&start, NULL);
 
   TimerEventScope<TimerEventCompileFullCode> timer(info->isolate());

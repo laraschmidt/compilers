@@ -97,10 +97,6 @@ namespace v8 {
 #define EXCEPTION_BAILOUT_CHECK(isolate, value)                                \
   EXCEPTION_BAILOUT_CHECK_GENERIC(isolate, value, ;)
 
-void i::V8::LaraConvert(v8::Handle<String> source){
- PrintF("Doin' some processing for LARA");
-}
-
 
 // --- E x c e p t i o n   B e h a v i o r ---
 
@@ -108,9 +104,6 @@ void i::V8::LaraConvert(v8::Handle<String> source){
 void i::FatalProcessOutOfMemory(const char* location) {
   i::V8::FatalProcessOutOfMemory(location, false);
 }
-
-//LARA
-
 
 
 // When V8 cannot allocated memory FatalProcessOutOfMemory is called.
@@ -1889,8 +1882,6 @@ Local<Script> ScriptCompiler::Compile(Isolate* v8_isolate,
 
 Local<Script> Script::Compile(v8::Handle<String> source,
                               v8::ScriptOrigin* origin) {
-  v8::internal::PrintF("LARA: Compiling some script!!");
-
   i::Handle<i::String> str = Utils::OpenHandle(*source);
   if (origin) {
     ScriptCompiler::Source script_source(source, *origin);
@@ -1909,7 +1900,6 @@ Local<Script> Script::Compile(v8::Handle<String> source,
 Local<Script> Script::Compile(v8::Handle<String> source,
                               v8::Handle<String> file_name) {
   
-  v8::internal::PrintF("LARA: Compiling some script from file!");      
   ScriptOrigin origin(file_name);
   return Compile(source, &origin);
 }
@@ -5458,25 +5448,10 @@ inline Local<String> NewString(Isolate* v8_isolate,
 }  // anonymous namespace
 
 
-inline void NewFromUtf8Lara(Isolate* isolate,
-                                      const char* data, 
-                                      String::NewStringType type,
-                                      int length) {
- 
-}
-
 Local<String> String::NewFromUtf8(Isolate* isolate,
                                   const char* data,
                                   NewStringType type,
                                   int length) {
-        int tlength = length;
-        if(length == -1)
-                tlength = StringLength(data);
-        if(tlength > 1000)
-        v8::internal::PrintF("LARA: Here in the newfromutf8 int %d\n", tlength);
-        for(int i = 0; i < tlength; i++){
-              v8::internal::PrintF("%c", data[i]);
-        }
    return NewString(isolate,
                    "v8::String::NewFromUtf8()",
                    "String::NewFromUtf8",
@@ -5541,6 +5516,7 @@ Local<String> v8::String::NewExternal(
     Isolate* isolate,
     v8::String::ExternalStringResource* resource) {
   i::Isolate* i_isolate = reinterpret_cast<i::Isolate*>(isolate);
+
   LOG_API(i_isolate, "String::NewExternal");
   ENTER_V8(i_isolate);
   CHECK(resource && resource->data());

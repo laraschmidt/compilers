@@ -42,8 +42,7 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
     int argc,
     Handle<Object> args[]) {
   Isolate* isolate = function->GetIsolate();
-  struct timeval start, end;
-  long mtime, seconds, useconds;    
+  struct timeval start;
 
   // Entering JavaScript.
   VMState<JS> state(isolate);
