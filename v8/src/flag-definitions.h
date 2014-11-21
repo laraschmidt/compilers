@@ -548,7 +548,7 @@ DEFINE_BOOL(use_idle_notification, true,
             "Use idle notification to reduce memory footprint.")
 // ic.cc
 DEFINE_BOOL(use_ic, true, "use inline caching")
-DEFINE_BOOL(trace_ic, true, "trace inline cache state transitions")
+DEFINE_BOOL(trace_ic, false, "trace inline cache state transitions")
 
 // macro-assembler-ia32.cc
 DEFINE_BOOL(native_code_counters, false,
@@ -854,8 +854,7 @@ DEFINE_BOOL(print_opt_code, false, "print optimized code")
 DEFINE_BOOL(print_unopt_code, false,
             "print unoptimized code before "
             "printing optimized code based on it")
-//LARA updated
-DEFINE_BOOL(print_code_verbose, false, "print more information for code")
+DEFINE_BOOL(print_code_verbose, true, "print more information for code")
 DEFINE_BOOL(print_builtin_code, false, "print generated code for builtins")
 DEFINE_BOOL(FLAG_trace_opt, false, "Esha_Defined_to get info")
 DEFINE_BOOL(FLAG_trace_opt_stats , false, "Esha Defined to calculate compilation timings")
