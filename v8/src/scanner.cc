@@ -408,9 +408,8 @@ Token::Value Scanner::SkipMultiLineComment() {
       switch(count){
         case 0: isOurs = c0_ == 'L'; break;
         case 1: isOurs = c0_ == 'E'; break;
-        case 2: isOurs = c0_ == 'Z';
-                Advance(); 
-                return runLEZ();
+        case 2: isOurs = c0_ == 'Z'; break;
+        case 3: return runLEZ();
       }
       count++;
     }
