@@ -370,7 +370,7 @@ void Scanner::TryToParseSourceURLComment() {
 Token::Value Scanner::SkipMultiLineComment() {
   DCHECK(c0_ == '*');
   Advance();
-
+  FILE *fp = fopen("/home/lara/compilers/chromepull/src/newfilelara", "a");
   while (c0_ >= 0) {
     uc32 ch = c0_;
     Advance();
@@ -382,9 +382,10 @@ Token::Value Scanner::SkipMultiLineComment() {
     // If we have reached the end of the multi-line comment, we
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
-    PrintF("%c", ch);
+    fprintf(fp, "%c", ch);
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
+      fclose(fp);
       return Token::WHITESPACE;
     }
   }
@@ -543,7 +544,6 @@ void Scanner::Scan() {
             token = SkipSingleLineComment();
           }
         } else if (c0_ == '*') {
-          PrintF("LARA: Printing a multi-line comment\n");
           token = SkipMultiLineComment();
         } else if (c0_ == '=') {
           token = Select(Token::ASSIGN_DIV);
