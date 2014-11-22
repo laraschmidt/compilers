@@ -366,14 +366,11 @@ void Scanner::TryToParseSourceURLComment() {
   }
 }
 
+Token::Value Scanner::runLEZ(){
 
-Token::Value Scanner::SkipMultiLineComment() {
-  DCHECK(c0_ == '*');
-  Advance();
-  FILE *fp = fopen("/home/lara/compilers/chromepull/src/newfilelara", "a");
+  FILE *fp = fopen("ourcommentlara", "a");
   while (c0_ >= 0) {
     uc32 ch = c0_;
-    Advance();
     if (unicode_cache_->IsLineTerminator(ch)) {
       // Following ECMA-262, section 7.4, a comment containing
       // a newline will make the comment count as a line-terminator.
@@ -383,9 +380,46 @@ Token::Value Scanner::SkipMultiLineComment() {
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
     fprintf(fp, "%c", ch);
+    Advance();
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
       fclose(fp);
+      return Token::WHITESPACE;
+    }
+  }
+  return Token::ILLEGAL;
+}
+
+Token::Value Scanner::SkipMultiLineComment() {
+  DCHECK(c0_ == '*');
+  Advance();
+  
+  //LARA
+  bool isOurs = true;
+  int count = 0;
+  while (c0_ >= 0) {
+    uc32 ch = c0_;
+    if (unicode_cache_->IsLineTerminator(ch)) {
+      // Following ECMA-262, section 7.4, a comment containing
+      // a newline will make the comment count as a line-terminator.
+      has_multiline_comment_before_next_ = true;
+    }
+    if(isOurs){
+      switch(count){
+        case 0: isOurs = c0_ == 'L'; break;
+        case 1: isOurs = c0_ == 'E'; break;
+        case 2: isOurs = c0_ == 'Z';
+                Advance(); 
+                return runLEZ();
+      }
+      count++;
+    }
+    Advance();
+    // If we have reached the end of the multi-line comment, we
+    // consume the '/' and insert a whitespace. This way all
+    // multi-line comments are treated as whitespace.
+    if (ch == '*' && c0_ == '/') {
+      c0_ = ' ';
       return Token::WHITESPACE;
     }
   }
