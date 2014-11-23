@@ -373,8 +373,8 @@ void Scanner::TryToParseSourceURLComment() {
 Token::Value Scanner::runLEZ(){
 
   FILE *fp = fopen("ourcommentlara", "a");
-  char *str;
-  int mynum = 0, foundcomma = 0, len;
+  char str[100];
+  int mynum = 0, foundcomma = 0, len=0;
  
   while (c0_ >= 0) {
     str[0]= '\0';
@@ -389,10 +389,10 @@ Token::Value Scanner::runLEZ(){
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
     fprintf(fp, "%c", ch);
-    if(isalpha(currch)){
-      len = strlen(str);
+    if((isalnum(currch)) && !foundcomma){
       str[len] = currch;
-      str[len+1] = '\0';
+      len++;
+      str[len] = '\0';
       }
     else{
       if(currch == ',')
@@ -403,9 +403,11 @@ Token::Value Scanner::runLEZ(){
        }
        if(currch==';'){
          iso->Func_Opt_Flags.insert(FlagMap::value_type(str, mynum));
+         fprintf(fp, "Printed something into Map %s  %d\n", str,mynum);
 	 str[0]= '\0';
          mynum = 0;
          foundcomma = 0;
+         len=0;
        }
       }
       }
@@ -413,7 +415,6 @@ Token::Value Scanner::runLEZ(){
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
 
-      fprintf(fp, "Printed something into Map\n");
       fclose(fp);
       return Token::WHITESPACE;
     }
