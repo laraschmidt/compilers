@@ -52,6 +52,10 @@ void Scanner::Initialize(Utf16CharacterStream* source) {
   Scan();
 }
 
+void Scanner::SetIso(Isolate * isol){
+  iso= isol;
+}
+
 
 uc32 Scanner::ScanHexNumber(int expected_length) {
   DCHECK(expected_length <= 4);  // prevent overflow
