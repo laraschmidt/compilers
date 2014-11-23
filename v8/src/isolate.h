@@ -407,7 +407,6 @@ class Isolate {
   class ThreadDataTable;
   class EntryStackItem;
  public:
-  FlagMap Func_Opt_Flags;
   ~Isolate();
 
   // A thread has a PerIsolateThreadData instance for each isolate that it has
@@ -1122,6 +1121,10 @@ class Isolate {
   // verified in Isolate::Init() using runtime checks.
   void* embedder_data_[Internals::kNumIsolateDataSlots];
   Heap heap_;
+
+ public:
+  FlagMap Func_Opt_Flags;
+ private:
 
   // The per-process lock should be acquired before the ThreadDataTable is
   // modified.
