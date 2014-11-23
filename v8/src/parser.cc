@@ -808,12 +808,10 @@ FunctionLiteral* Parser::ParseProgram() {
     ExternalTwoByteStringUtf16CharacterStream stream(
         Handle<ExternalTwoByteString>::cast(source), 0, source->length());
     scanner_.Initialize(&stream);
-    scanner_.SetIso(isolate());
     result = DoParseProgram(info(), &top_scope, &eval_scope);
   } else {
     GenericStringUtf16CharacterStream stream(source, 0, source->length());
     scanner_.Initialize(&stream);
-    scanner_.SetIso(isolate());
     result = DoParseProgram(info(), &top_scope, &eval_scope);
   }
   top_scope->set_end_position(source->length());
@@ -880,10 +878,8 @@ FunctionLiteral* Parser::DoParseProgram(CompilationInfo* info, Scope** scope,
     ParsingModeScope parsing_mode(this, mode);
 
     // Enters 'scope'.
-    AstNodeFactory<AstConstructionVisitor> function_factory(
-        zone(), ast_value_factory(), info->ast_node_id_gen());
-    FunctionState function_state(&function_state_, &scope_, *scope,
-                                 &function_factory);
+    FunctionState function_state(&function_state_, &scope_, *scope, zone(),
+                                 ast_value_factory(), info->ast_node_id_gen());
 
     scope_->SetStrictMode(info->strict_mode());
     ZoneList<Statement*>* body = new(zone()) ZoneList<Statement*>(16, zone());
@@ -972,7 +968,6 @@ FunctionLiteral* Parser::ParseLazy() {
 FunctionLiteral* Parser::ParseLazy(Utf16CharacterStream* source) {
   Handle<SharedFunctionInfo> shared_info = info()->shared_info();
   scanner_.Initialize(source);
-  scanner_.SetIso(isolate());
   DCHECK(scope_ == NULL);
   DCHECK(target_stack_ == NULL);
 
@@ -996,10 +991,9 @@ FunctionLiteral* Parser::ParseLazy(Utf16CharacterStream* source) {
                                            zone());
     }
     original_scope_ = scope;
-    AstNodeFactory<AstConstructionVisitor> function_factory(
-        zone(), ast_value_factory(), info()->ast_node_id_gen());
-    FunctionState function_state(&function_state_, &scope_, scope,
-                                 &function_factory);
+    FunctionState function_state(&function_state_, &scope_, scope, zone(),
+                                 ast_value_factory(),
+                                 info()->ast_node_id_gen());
     DCHECK(scope->strict_mode() == SLOPPY || info()->strict_mode() == STRICT);
     DCHECK(info()->strict_mode() == shared_info->strict_mode());
     scope->SetStrictMode(shared_info->strict_mode());
@@ -3498,10 +3492,9 @@ FunctionLiteral* Parser::ParseFunctionLiteral(
   BailoutReason dont_optimize_reason = kNoReason;
   // Parse function body.
   {
-    AstNodeFactory<AstConstructionVisitor> function_factory(
-        zone(), ast_value_factory(), info()->ast_node_id_gen());
-    FunctionState function_state(&function_state_, &scope_, scope,
-                                 &function_factory);
+    FunctionState function_state(&function_state_, &scope_, scope, zone(),
+                                 ast_value_factory(),
+                                 info()->ast_node_id_gen());
     scope_->SetScopeName(function_name);
 
     if (is_generator) {
@@ -4933,7 +4926,6 @@ void Parser::ParseOnBackground() {
   ExternalStreamingStream stream(info()->source_stream(),
                                  info()->source_stream_encoding());
   scanner_.Initialize(&stream);
-  scanner_.SetIso(isolate());
   DCHECK(info()->context().is_null() || info()->context()->IsNativeContext());
 
   // When streaming, we don't know the length of the source until we have parsed
