@@ -373,8 +373,13 @@ void Scanner::TryToParseSourceURLComment() {
 Token::Value Scanner::runLEZ(){
 
   FILE *fp = fopen("ourcommentlara", "a");
+  char *str;
+  int mynum = 0, foundcomma = 0, len;
+ 
   while (c0_ >= 0) {
+    str[0]= '\0';
     uc32 ch = c0_;
+    char currch = ch;
     if (unicode_cache_->IsLineTerminator(ch)) {
       // Following ECMA-262, section 7.4, a comment containing
       // a newline will make the comment count as a line-terminator.
@@ -384,9 +389,31 @@ Token::Value Scanner::runLEZ(){
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
     fprintf(fp, "%c", ch);
+    if(isalpha(currch)){
+      len = strlen(str);
+      str[len] = currch;
+      str[len+1] = '\0';
+      }
+    else{
+      if(currch == ',')
+        foundcomma = 1;
+      if(foundcomma){
+       if(isdigit(currch)){
+         mynum = mynum*10 + (currch-'0');
+       }
+       if(currch==';'){
+         iso->Func_Opt_Flags.insert(FlagMap::value_type(str, mynum));
+	 str[0]= '\0';
+         mynum = 0;
+         foundcomma = 0;
+       }
+      }
+      }
     Advance();
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
+
+      fprintf(fp, "Printed something into Map\n");
       fclose(fp);
       return Token::WHITESPACE;
     }
