@@ -409,6 +409,8 @@ class Isolate {
  public:
   ~Isolate();
 
+  FlagMap * GetMap();
+
   // A thread has a PerIsolateThreadData instance for each isolate that it has
   // entered. That instance is allocated when the isolate is initially entered
   // and reused on subsequent entries.
@@ -1122,9 +1124,6 @@ class Isolate {
   void* embedder_data_[Internals::kNumIsolateDataSlots];
   Heap heap_;
 
- public:
-  FlagMap Func_Opt_Flags;
- private:
 
   // The per-process lock should be acquired before the ThreadDataTable is
   // modified.
@@ -1328,6 +1327,9 @@ class Isolate {
 
   v8::Isolate::UseCounterCallback use_counter_callback_;
   BasicBlockProfiler* basic_block_profiler_;
+
+
+    FlagMap * Func_Opt_Flags;
 
   friend class ExecutionAccess;
   friend class HandleScopeImplementer;

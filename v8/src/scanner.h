@@ -349,7 +349,7 @@ class Scanner {
   void Initialize(Utf16CharacterStream* source);
 
   void SetIso(Isolate* iso);
-  Isolate * iso;
+  Isolate * iso = 0;
 
   // Returns the next token and advances input.
   Token::Value Next();

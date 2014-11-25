@@ -130,6 +130,9 @@ Isolate::PerIsolateThreadData*
   return per_thread;
 }
 
+FlagMap * Isolate::GetMap(){
+  return Func_Opt_Flags;
+}
 
 Isolate::PerIsolateThreadData* Isolate::FindPerThreadDataForThisThread() {
   ThreadId thread_id = ThreadId::Current();
@@ -1862,6 +1865,7 @@ bool Isolate::Init(Deserializer* des) {
       new CallInterfaceDescriptorData[CallDescriptors::NUMBER_OF_DESCRIPTORS];
   cpu_profiler_ = new CpuProfiler(this);
   heap_profiler_ = new HeapProfiler(heap());
+  Func_Opt_Flags = new FlagMap;
 
   // Enable logging before setting up the heap
   logger_->SetUp(this);

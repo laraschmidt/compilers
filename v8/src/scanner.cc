@@ -53,6 +53,10 @@ void Scanner::Initialize(Utf16CharacterStream* source) {
 }
 
 void Scanner::SetIso(Isolate * isol){
+  
+  FILE *fp = fopen("ourcommentlaraiso", "a");
+  fprintf(fp, "HEREEEE %p", (void *) isol);
+  fclose(fp);
   iso= isol;
 }
 
@@ -374,10 +378,11 @@ Token::Value Scanner::runLEZ(){
 
   FILE *fp = fopen("ourcommentlara", "a");
   char str[100];
-  int mynum = 0, foundcomma = 0, len=0;
- 
+  int firstnum = 0;
+  int mynum = 0;
+  int len = 0;
+  int section = 1;
   while (c0_ >= 0) {
-    str[0]= '\0';
     uc32 ch = c0_;
     char currch = ch;
     if (unicode_cache_->IsLineTerminator(ch)) {
@@ -388,33 +393,40 @@ Token::Value Scanner::runLEZ(){
     // If we have reached the end of the multi-line comment, we
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
-    fprintf(fp, "%c", ch);
-    if((isalnum(currch)) && !foundcomma){
-      str[len] = currch;
-      len++;
-      str[len] = '\0';
-      }
-    else{
-      if(currch == ',')
-        foundcomma = 1;
-      if(foundcomma){
-       if(isdigit(currch)){
-         mynum = mynum*10 + (currch-'0');
-       }
-       if(currch==';'){
-         iso->Func_Opt_Flags.insert(FlagMap::value_type(str, mynum));
-         fprintf(fp, "Printed something into Map %s  %d\n", str,mynum);
-	 str[0]= '\0';
-         mynum = 0;
-         foundcomma = 0;
-         len=0;
-       }
-      }
-      }
+    
+    fprintf(fp, "%c", currch);
+    fflush(fp);
+    if(isalnum(currch) && section == 1){
+      str[len++] = currch;
+    } else if(currch == ','){
+      firstnum = mynum;
+      mynum = 0;
+      section++;
+    } else if (isdigit(currch)) {
+      mynum = mynum*10 + (currch-'0');
+    } else  if(section > 1 && currch==';'){
+	  str[len]= '\0';
+      fprintf(fp, "First %p\n\n", (void*)iso);
+      fflush(fp);
+      fprintf(fp, "NOTE: %p\n\n", (void*) iso->GetMap()); 
+      fflush(fp);
+      //iso->GetMap()->clear();
+      //iso->GetMap()->insert(FlagMap::value_type(std::string(str), mynum));
+      fprintf(fp, "Printed something into Map %s  %d %d\n", str, firstnum, mynum);
+      mynum = 0;
+      section = 1;
+      len=0;
+    }
     Advance();
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
-
+      fprintf(fp, "check");
+      fflush(fp);
+      //auto t = iso->GetMap()->find("foo");
+      //if(t == iso->GetMap()->end())
+      //   fprintf(fp, "not found");
+      //else
+      //   fprintf(fp, "%d", t->second);
       fclose(fp);
       return Token::WHITESPACE;
     }
