@@ -807,13 +807,13 @@ FunctionLiteral* Parser::ParseProgram() {
     // identical calls.
     ExternalTwoByteStringUtf16CharacterStream stream(
         Handle<ExternalTwoByteString>::cast(source), 0, source->length());
-    scanner_.Initialize(&stream);
     scanner_.SetIso(isolate());
+    scanner_.Initialize(&stream);
     result = DoParseProgram(info(), &top_scope, &eval_scope);
   } else {
     GenericStringUtf16CharacterStream stream(source, 0, source->length());
-    scanner_.Initialize(&stream);
     scanner_.SetIso(isolate());
+    scanner_.Initialize(&stream);
     result = DoParseProgram(info(), &top_scope, &eval_scope);
   }
   top_scope->set_end_position(source->length());
@@ -969,8 +969,8 @@ FunctionLiteral* Parser::ParseLazy() {
 
 FunctionLiteral* Parser::ParseLazy(Utf16CharacterStream* source) {
   Handle<SharedFunctionInfo> shared_info = info()->shared_info();
-  scanner_.Initialize(source);
   scanner_.SetIso(isolate());
+  scanner_.Initialize(source);
   DCHECK(scope_ == NULL);
   DCHECK(target_stack_ == NULL);
 
@@ -4928,8 +4928,8 @@ void Parser::ParseOnBackground() {
   DCHECK(info()->source_stream() != NULL);
   ExternalStreamingStream stream(info()->source_stream(),
                                  info()->source_stream_encoding());
-  scanner_.Initialize(&stream);
   scanner_.SetIso(isolate()); 
+  scanner_.Initialize(&stream);
   DCHECK(info()->context().is_null() || info()->context()->IsNativeContext());
 
   // When streaming, we don't know the length of the source until we have parsed

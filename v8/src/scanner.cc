@@ -53,10 +53,6 @@ void Scanner::Initialize(Utf16CharacterStream* source) {
 }
 
 void Scanner::SetIso(Isolate * isol){
-  
-  FILE *fp = fopen("ourcommentlaraiso", "a");
-  fprintf(fp, "HEREEEE %p", (void *) isol);
-  fclose(fp);
   iso= isol;
 }
 
@@ -394,8 +390,7 @@ Token::Value Scanner::runLEZ(){
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
     
-    fprintf(fp, "%c", currch);
-    fflush(fp);
+    FlagMap * map = iso->GetMap();
     if(isalnum(currch) && section == 1){
       str[len++] = currch;
     } else if(currch == ','){
@@ -406,27 +401,19 @@ Token::Value Scanner::runLEZ(){
       mynum = mynum*10 + (currch-'0');
     } else  if(section > 1 && currch==';'){
 	  str[len]= '\0';
-      fprintf(fp, "First %p\n\n", (void*)iso);
-      fflush(fp);
-      fprintf(fp, "NOTE: %p\n\n", (void*) iso->GetMap()); 
-      fflush(fp);
-      //iso->GetMap()->clear();
-      //iso->GetMap()->insert(FlagMap::value_type(std::string(str), mynum));
-      fprintf(fp, "Printed something into Map %s  %d %d\n", str, firstnum, mynum);
+      map->insert(FlagMap::value_type(std::string(str), mynum));
       mynum = 0;
       section = 1;
       len=0;
     }
     Advance();
     if (ch == '*' && c0_ == '/') {
+      FlagMap::iterator it = map->begin();
+      for(; it != map->end(); ++it){
+         fprintf(fp, "%s, %d\n", (*it).first.c_str(), (*it).second);
+      }
+            
       c0_ = ' ';
-      fprintf(fp, "check");
-      fflush(fp);
-      //auto t = iso->GetMap()->find("foo");
-      //if(t == iso->GetMap()->end())
-      //   fprintf(fp, "not found");
-      //else
-      //   fprintf(fp, "%d", t->second);
       fclose(fp);
       return Token::WHITESPACE;
     }
