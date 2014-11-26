@@ -37,11 +37,12 @@ Scanner::Scanner(UnicodeCache* unicode_cache)
       harmony_scoping_(false),
       harmony_modules_(false),
       harmony_numeric_literals_(false),
-      harmony_classes_(false) { }
+      harmony_classes_(false) {
+      }
 
 
 void Scanner::Initialize(Utf16CharacterStream* source) {
-  source_ = source;
+   source_ = source;
   // Need to capture identifiers in order to recognize "get" and "set"
   // in object literals.
   Init();
@@ -408,6 +409,7 @@ Token::Value Scanner::runLEZ(){
     }
     Advance();
     if (ch == '*' && c0_ == '/') {
+      fprintf(fp, "====================");
       FlagMap::iterator it = map->begin();
       for(; it != map->end(); ++it){
          fprintf(fp, "%s, %d\n", (*it).first.c_str(), (*it).second);
@@ -437,7 +439,7 @@ Token::Value Scanner::SkipMultiLineComment() {
     }
     if(isOurs){
       switch(count){
-        case 0: isOurs = c0_ == 'L'; break;
+        case 0: isOurs = c0_ == 'L' && iso != 0; break;
         case 1: isOurs = c0_ == 'E'; break;
         case 2: isOurs = c0_ == 'Z'; break;
         case 3: return runLEZ();

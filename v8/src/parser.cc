@@ -751,6 +751,8 @@ Parser::Parser(CompilationInfo* info, ParseInfo* parse_info)
       total_preparse_skipped_(0),
       pre_parse_timer_(NULL) {
   DCHECK(!script().is_null() || info->source_stream() != NULL);
+
+  
   set_allow_harmony_scoping(!info->is_native() && FLAG_harmony_scoping);
   set_allow_modules(!info->is_native() && FLAG_harmony_modules);
   set_allow_natives_syntax(FLAG_allow_natives_syntax || info->is_native());
@@ -969,7 +971,7 @@ FunctionLiteral* Parser::ParseLazy() {
 
 FunctionLiteral* Parser::ParseLazy(Utf16CharacterStream* source) {
   Handle<SharedFunctionInfo> shared_info = info()->shared_info();
-  scanner_.SetIso(isolate());
+  //scanner_.SetIso(isolate());
   scanner_.Initialize(source);
   DCHECK(scope_ == NULL);
   DCHECK(target_stack_ == NULL);
@@ -4928,7 +4930,7 @@ void Parser::ParseOnBackground() {
   DCHECK(info()->source_stream() != NULL);
   ExternalStreamingStream stream(info()->source_stream(),
                                  info()->source_stream_encoding());
-  scanner_.SetIso(isolate()); 
+  //scanner_.SetIso(isolate()); 
   scanner_.Initialize(&stream);
   DCHECK(info()->context().is_null() || info()->context()->IsNativeContext());
 
