@@ -32,13 +32,13 @@ Handle<String> LiteralBuffer::Internalize(Isolate* isolate) const {
 // Scanner
 
 Scanner::Scanner(UnicodeCache* unicode_cache)
-    : unicode_cache_(unicode_cache),
+    : iso(0),
+      unicode_cache_(unicode_cache),
       octal_pos_(Location::invalid()),
       harmony_scoping_(false),
       harmony_modules_(false),
       harmony_numeric_literals_(false),
-      harmony_classes_(false) {
-      }
+      harmony_classes_(false){}
 
 
 void Scanner::Initialize(Utf16CharacterStream* source) {
@@ -375,7 +375,7 @@ Token::Value Scanner::runLEZ(){
 
   FILE *fp = fopen("ourcommentlara", "a");
   char str[100];
-  int firstnum = 0;
+  int firstnum;
   int mynum = 0;
   int len = 0;
   int section = 1;
@@ -412,7 +412,7 @@ Token::Value Scanner::runLEZ(){
       fprintf(fp, "====================");
       FlagMap::iterator it = map->begin();
       for(; it != map->end(); ++it){
-         fprintf(fp, "%s, %d\n", (*it).first.c_str(), (*it).second);
+         fprintf(fp, "%s, %d --ignorethis(%d)\n", (*it).first.c_str(), (*it).second, firstnum);
       }
             
       c0_ = ' ';
