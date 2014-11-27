@@ -5020,6 +5020,13 @@ class Code: public HeapObject {
   // at the moment when this object was created.
   inline void set_ic_age(int count);
   inline int ic_age() const;
+<<<<<<< HEAD
+=======
+ 
+  inline int LEZFlag() const;
+  inline void set_LEZFlag(int value);
+
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
   // [prologue_offset]: Offset of the function prologue, used for aging
   // FUNCTIONs and OPTIMIZED_FUNCTIONs.
@@ -5358,7 +5365,12 @@ class Code: public HeapObject {
   static const int kGCMetadataOffset = kNextCodeLinkOffset + kPointerSize;
   static const int kICAgeOffset =
       kGCMetadataOffset + kPointerSize;
+<<<<<<< HEAD
   static const int kFlagsOffset = kICAgeOffset + kIntSize;
+=======
+  static const int kLEZFlagOffset = kICAgeOffset + kIntSize;   
+  static const int kFlagsOffset = kLEZFlagOffset + kIntSize;
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
   static const int kKindSpecificFlags1Offset = kFlagsOffset + kIntSize;
   static const int kKindSpecificFlags2Offset =
       kKindSpecificFlags1Offset + kIntSize;
@@ -6745,6 +6757,10 @@ class SharedFunctionInfo: public HeapObject {
   // disposal or not. In the former case we reset the opt_count.
   inline int ic_age();
   inline void set_ic_age(int age);
+<<<<<<< HEAD
+=======
+  
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
   // Indicates if this function can be lazy compiled.
   // This is used to determine if we can safely flush code from a function
@@ -6934,8 +6950,11 @@ class SharedFunctionInfo: public HeapObject {
       kOptCountAndBailoutReasonOffset + kPointerSize;
   static const int kAstNodeCountOffset =
       kCountersOffset + kPointerSize;
+<<<<<<< HEAD
   // LEZ
  // static const int kLEZPointerOffset = kAstNodeCountOffset + kPointerSize;
+=======
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
   static const int kProfilerTicksOffset =
       kAstNodeCountOffset + kPointerSize;
 
@@ -7213,6 +7232,17 @@ class JSModule: public JSObject {
   DISALLOW_IMPLICIT_CONSTRUCTORS(JSModule);
 };
 
+<<<<<<< HEAD
+=======
+/*
+class LEZpointer{
+ public:
+  int myflag;
+  LEZpointer(int val){
+  myflag = val;
+  }
+};*/
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
 // JSFunction describes JavaScript functions.
 class JSFunction: public JSObject {
@@ -7223,7 +7253,14 @@ class JSFunction: public JSObject {
   // [shared]: The information about the function that
   // can be shared by instances.
   DECL_ACCESSORS(shared, SharedFunctionInfo)
+<<<<<<< HEAD
 
+=======
+  
+  //DECL_ACCESSORS(LEZFlag, LEZpointer)
+  //inline void set_LEZFlag(int value);
+  //inline int LEZFlag() const;
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
   // [context]: The context for this function.
   inline Context* context();
   inline void set_context(Object* context);
@@ -7302,6 +7339,12 @@ class JSFunction: public JSObject {
   static const int kGenerousAllocationCount = Map::ConstructionCount::kMax;
   static const int kFinishSlackTracking     = 1;
   static const int kNoSlackTracking         = 0;
+<<<<<<< HEAD
+=======
+  
+
+  int EshaInt ;
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
   // True if the initial_map is set and the object constructions countdown
   // counter is not zero.
@@ -7368,6 +7411,11 @@ class JSFunction: public JSObject {
   // After prototype is removed, it will not be created when accessed, and
   // [[Construct]] from this function will not be allowed.
   bool RemovePrototype();
+<<<<<<< HEAD
+=======
+  int getEshaInt();
+  void setEshaInt(int value);
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
   inline bool should_have_prototype();
 
   // Accessor for this function's initial map's [[class]]
@@ -7419,9 +7467,19 @@ class JSFunction: public JSObject {
       kCodeEntryOffset + kPointerSize;
   static const int kSharedFunctionInfoOffset =
       kPrototypeOrInitialMapOffset + kPointerSize;
+<<<<<<< HEAD
   static const int kContextOffset = kSharedFunctionInfoOffset + kPointerSize;
   static const int kLiteralsOffset = kContextOffset + kPointerSize;
   static const int kNonWeakFieldsEndOffset = kLiteralsOffset + kPointerSize;
+=======
+  //static const int kLEZFlagOffset =  kSharedFunctionInfoOffset + kPointerSize;
+  //static const int kContextOffset = kLEZFlagOffset + kIntSize;
+  static const int kContextOffset =  kSharedFunctionInfoOffset + kPointerSize;
+  static const int kLiteralsOffset = kContextOffset + kPointerSize;
+  //static const int kPaddingStart = kLiteralsOffset + kPointerSize;
+  //static const int kNonWeakFieldsEndOffset = (kPaddingStart + kCodeAlignmentMask) & ~kCodeAlignmentMask;
+  static const int kNonWeakFieldsEndOffset = kContextOffset + kPointerSize;
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
   static const int kNextFunctionLinkOffset = kNonWeakFieldsEndOffset;
   static const int kSize = kNextFunctionLinkOffset + kPointerSize;
 
@@ -7434,6 +7492,11 @@ class JSFunction: public JSObject {
   static const int kBoundThisIndex = 1;
   static const int kBoundArgumentsStartIndex = 2;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(JSFunction);
 };

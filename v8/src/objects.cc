@@ -9930,6 +9930,16 @@ void JSFunction::StartInobjectSlackTracking() {
   map->set_construction_count(kGenerousAllocationCount);
 }
 
+<<<<<<< HEAD
+=======
+void JSFunction::setEshaInt(int value){
+  EshaInt = value;
+}
+
+int JSFunction::getEshaInt(){
+  return EshaInt;
+}
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
 void SharedFunctionInfo::ResetForNewContext(int new_ic_age) {
   code()->ClearInlineCaches();

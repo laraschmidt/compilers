@@ -1202,6 +1202,13 @@ Maybe<bool> JSProxy::HasElementWithHandler(Handle<JSProxy> proxy,
 
 #define WRITE_FIELD(p, offset, value) \
   (*reinterpret_cast<Object**>(FIELD_ADDR(p, offset)) = value)
+<<<<<<< HEAD
+=======
+  
+
+#define WRITE_FIELD_LEZ(p, offset, value) \
+  (*reinterpret_cast<LEZpointer**>(FIELD_ADDR(p, offset)) = value)
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
 #define RELEASE_WRITE_FIELD(p, offset, value)                     \
   base::Release_Store(                                            \
@@ -5874,6 +5881,18 @@ void JSFunction::set_code(Code* value) {
 }
 
 
+<<<<<<< HEAD
+=======
+//ACCESSORS(JSFunction, LEZFlag, LEZpointer, kLEZFlagOffset)
+/*
+void JSFunction::set_LEZFlag(LEZpointer* value, WriteBarrierMode mode) {
+  //DCHECK(!GetHeap()->InNewSpace(value));
+  //WRITE_INTPTR_FIELD(this, kLEZFlagOffset, reinterpret_cast<intptr_t>(entry));
+  WRITE_FIELD_LEZ(this, kLEZFlagOffset, value);
+}*/
+
+
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 void JSFunction::set_code_no_write_barrier(Code* value) {
   DCHECK(!GetHeap()->InNewSpace(value));
   Address entry = value->entry();
@@ -6193,7 +6212,11 @@ void Code::set_stub_key(uint32_t key) {
 
 ACCESSORS(Code, gc_metadata, Object, kGCMetadataOffset)
 INT_ACCESSORS(Code, ic_age, kICAgeOffset)
+<<<<<<< HEAD
 
+=======
+INT_ACCESSORS(Code, LEZFlag, kLEZFlagOffset)
+>>>>>>> Not working version with LEZflag in Code on 26th Esha
 
 byte* Code::instruction_start()  {
   return FIELD_ADDR(this, kHeaderSize);
