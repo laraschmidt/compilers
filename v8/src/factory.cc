@@ -1231,6 +1231,9 @@ inline void AddFlags(Handle<JSFunction> function,
                      String * fnname){
   FILE* fp = fopen("ourcommentlara","a");
   fprintf(fp, "iseren %s\n", fnname->ToCString().get());
+  //LEZpointer *myLEZFlags= new LEZpointer(3); 
+  function->code()->set_LEZFlag(3);
+  //fprintf(fp, "isval %d\n", function->EshaInt);
   FlagMap * map = iso->GetMap();
   FlagMap::iterator it = map->begin();
   for(; it != map->end(); ++it){
@@ -1257,6 +1260,7 @@ void Factory::InitializeFunction(Handle<JSFunction> function,
   function->set_prototype_or_initial_map(*the_hole_value());
   function->set_literals_or_bindings(*empty_fixed_array());
   function->set_next_function_link(*undefined_value());
+  //function->setEshaInt(45);
   if(runOurs)
     AddFlags(function, isolate(), (String*) s);
 
