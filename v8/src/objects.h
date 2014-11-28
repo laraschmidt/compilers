@@ -6934,6 +6934,8 @@ class SharedFunctionInfo: public HeapObject {
       kOptCountAndBailoutReasonOffset + kPointerSize;
   static const int kAstNodeCountOffset =
       kCountersOffset + kPointerSize;
+  // LEZ
+ // static const int kLEZPointerOffset = kAstNodeCountOffset + kPointerSize;
   static const int kProfilerTicksOffset =
       kAstNodeCountOffset + kPointerSize;
 
@@ -7221,8 +7223,6 @@ class JSFunction: public JSObject {
   // [shared]: The information about the function that
   // can be shared by instances.
   DECL_ACCESSORS(shared, SharedFunctionInfo)
-
-  DECL_
 
   // [context]: The context for this function.
   inline Context* context();
