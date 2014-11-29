@@ -2036,6 +2036,7 @@ Handle<SharedFunctionInfo> Factory::NewSharedFunctionInfo(
   share->set_script(*undefined_value(), SKIP_WRITE_BARRIER);
   share->set_debug_info(*undefined_value(), SKIP_WRITE_BARRIER);
   share->set_inferred_name(*empty_string(), SKIP_WRITE_BARRIER);
+  share->set_lez(*empty_string(), SKIP_WRITE_BARRIER);
   Handle<TypeFeedbackVector> feedback_vector = NewTypeFeedbackVector(0);
   share->set_feedback_vector(*feedback_vector, SKIP_WRITE_BARRIER);
   share->set_profiler_ticks(0);

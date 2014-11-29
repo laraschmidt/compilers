@@ -6708,6 +6708,7 @@ class SharedFunctionInfo: public HeapObject {
   // all functions are anonymous but are assigned to object
   // properties.
   DECL_ACCESSORS(inferred_name, String)
+  DECL_ACCESSORS(lez, String)
 
   // The function's name if it is non-empty, otherwise the inferred name.
   String* DebugName();
@@ -6909,8 +6910,9 @@ class SharedFunctionInfo: public HeapObject {
   static const int kScriptOffset = kFunctionDataOffset + kPointerSize;
   static const int kDebugInfoOffset = kScriptOffset + kPointerSize;
   static const int kInferredNameOffset = kDebugInfoOffset + kPointerSize;
+  static const int kLEZOffset = kInferredNameOffset + kPointerSize;
   static const int kFeedbackVectorOffset =
-      kInferredNameOffset + kPointerSize;
+      kLEZOffset + kPointerSize;
 #if V8_HOST_ARCH_32_BIT
   // Smi fields.
   static const int kLengthOffset =
@@ -6934,8 +6936,6 @@ class SharedFunctionInfo: public HeapObject {
       kOptCountAndBailoutReasonOffset + kPointerSize;
   static const int kAstNodeCountOffset =
       kCountersOffset + kPointerSize;
-  // LEZ
- // static const int kLEZPointerOffset = kAstNodeCountOffset + kPointerSize;
   static const int kProfilerTicksOffset =
       kAstNodeCountOffset + kPointerSize;
 
