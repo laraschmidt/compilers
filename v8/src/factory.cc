@@ -1252,23 +1252,13 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
         }
         if(spot != 0){
           int tmp = num & 0xFFFFFF;
-         /* n[spot+2] = num & 0xFF;
-          n[spot+1] = (num >> 8) & 0xFF;
-          n[spot]   = (num >> 16) & 0xFF;
-          int one = (int) n[spot+2] & 0xFF;
-          int two = (((int) n[spot+1]) << 8) & 0xFF00;
-          int three = (((int) n[spot+1]) << 16) & 0xFF0000;
-          int result = one | two | three; 
-          */
           memcpy(&n[spot], &tmp, 4);
-          int res = 0;
-          memcpy(&res, &n[spot], 4);
-          fprintf(fp, "- Putin extra %d\n",res);
+          //int res = 0;
+          //memcpy(&res, &n[spot], 4); res is result
         }
-        fprintf(fp, "- Loc: %d! Extra: %d Num: %d\n", loc, num & 0xFFFFFF, num);
+        fprintf(fp, "Optimization%d! ExtraData: %d n[0]: %d\n", loc, num & 0xFFFFFF, n[0]);
       }
       map->erase(range.first, range.second);
-      fprintf(fp, "Here is first bytes %c %c\n", n[0], n[1]);
       Handle<String> name = iso->factory()->NewStringFromUtf8(CStrVector(n)).ToHandleChecked();
       info->set_lez(*name);
       fclose(fp);
