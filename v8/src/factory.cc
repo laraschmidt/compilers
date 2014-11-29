@@ -1226,17 +1226,54 @@ MaybeHandle<Object> Factory::NewError(const char* constructor,
 }
 
 
-inline void AddFlags(Handle<JSFunction> function,
+inline void AddFlags(Handle<SharedFunctionInfo> info,
                      Isolate * iso, 
                      String * fnname){
-  FILE* fp = fopen("ourcommentlara","a");
-  fprintf(fp, "iseren %s\n", fnname->ToCString().get());
-  FlagMap * map = iso->GetMap();
-  FlagMap::iterator it = map->begin();
-  for(; it != map->end(); ++it){
-    fprintf(fp, "H%s, %d\n", (*it).first.c_str(), (*it).second);
+
+  //fprintf(fp, "iseren %s %p\n", fnname->ToCString().get(), (void*) *info);
+  if(info->lez()->length() == 0){
+    FlagMap * map = iso->GetMap();
+    auto range = map->equal_range(fnname->ToCString().get());
+    if(range.first != range.second){
+      FILE* fp = fopen("ourcommentlara","a");
+      fprintf(fp, "Adding %s to list\n", fnname->ToCString().get());
+      char *  n = new char[LEZARRAYSIZE];
+      memset(n, 0, LEZARRAYSIZE);
+      FlagMap::iterator it;
+      for(it = range.first; it != range.second; ++ it){
+        int num = it->second;
+        int loc = it->second >> (32-8);
+        n[loc/8] |= 1 << (loc %8);
+        int spot = 0;
+        switch(static_cast<LezFlags>(loc)){
+           case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
+                              break;
+           default: break;
+        }
+        if(spot != 0){
+          int tmp = num & 0xFFFFFF;
+         /* n[spot+2] = num & 0xFF;
+          n[spot+1] = (num >> 8) & 0xFF;
+          n[spot]   = (num >> 16) & 0xFF;
+          int one = (int) n[spot+2] & 0xFF;
+          int two = (((int) n[spot+1]) << 8) & 0xFF00;
+          int three = (((int) n[spot+1]) << 16) & 0xFF0000;
+          int result = one | two | three; 
+          */
+          memcpy(&n[spot], &tmp, 4);
+          int res = 0;
+          memcpy(&res, &n[spot], 4);
+          fprintf(fp, "- Putin extra %d\n",res);
+        }
+        fprintf(fp, "- Loc: %d! Extra: %d Num: %d\n", loc, num & 0xFFFFFF, num);
+      }
+      map->erase(range.first, range.second);
+      fprintf(fp, "Here is first bytes %c %c\n", n[0], n[1]);
+      Handle<String> name = iso->factory()->NewStringFromUtf8(CStrVector(n)).ToHandleChecked();
+      info->set_lez(*name);
+      fclose(fp);
+    }
   }
-  fclose(fp);
 }
 
 void Factory::InitializeFunction(Handle<JSFunction> function,
@@ -1258,7 +1295,7 @@ void Factory::InitializeFunction(Handle<JSFunction> function,
   function->set_literals_or_bindings(*empty_fixed_array());
   function->set_next_function_link(*undefined_value());
   if(runOurs)
-    AddFlags(function, isolate(), (String*) s);
+    AddFlags(info, isolate(), (String*) s);
 
 }
 
