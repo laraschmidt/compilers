@@ -372,8 +372,7 @@ void Scanner::TryToParseSourceURLComment() {
 }
 
 Token::Value Scanner::runLEZ(){
-
-  FILE *fp = fopen("ourcommentlara", "a");
+  //FILE *fp = fopen("ourcommentlara", "a");
   char str[100];
   int firstnum;
   int mynum = 0;
@@ -402,21 +401,23 @@ Token::Value Scanner::runLEZ(){
       mynum = mynum*10 + (currch-'0');
     } else  if(section > 1 && currch==';'){
 	  str[len]= '\0';
-      map->insert(FlagMap::value_type(std::string(str), mynum));
+      int num = 0;
+      if(section == 2){
+        num = mynum << (32 - 8);
+        //fprintf(fp, "Inserting for %s: %d (noextra) Res: %d\n", str, mynum, num);
+      } else {
+        num = (firstnum << (32-8)) | mynum;
+        //fprintf(fp, "Inserting for %s: %d E:%d Res: %d\n", str, firstnum, mynum, num);
+      }
+      map->insert(FlagMap::value_type(std::string(str), num));
       mynum = 0;
       section = 1;
       len=0;
     }
     Advance();
     if (ch == '*' && c0_ == '/') {
-      fprintf(fp, "====================");
-      FlagMap::iterator it = map->begin();
-      for(; it != map->end(); ++it){
-         fprintf(fp, "%s, %d --ignorethis(%d)\n", (*it).first.c_str(), (*it).second, firstnum);
-      }
-            
       c0_ = ' ';
-      fclose(fp);
+      //fclose(fp);
       return Token::WHITESPACE;
     }
   }
