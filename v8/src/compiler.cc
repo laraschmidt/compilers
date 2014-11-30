@@ -1320,16 +1320,24 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
       info.code(), scope_info, info.feedback_vector());
   SetFunctionInfo(result, literal, false, script);
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
-  bool ourOpt=0;
-  if(result->lez()->length() != 0)
-    ourOpt = result->lez()->ToCString().get()[0] & 1;
-  
-  allow_lazy |= ourOpt;
-  allow_lazy_without_ctx |= ourOpt;
-  FILE* fp = fopen("ourcommentlara","a");
-  //String* fnname = (String*)(result->name());
-  fprintf(fp, "Compiling %s lez is %s yes? %d\n", ((String*)(result->name()))->ToCString().get(), result->lez()->ToCString().get(), ourOpt);
-  fclose(fp);
+  bool ourOpt=false, isOurs = false, noOpt=false;
+  isOurs = result->lez()->length() != 0;
+  ourOpt = isOurs && result->lez()->ToCString().get()[0] & 1;
+  noOpt = isOurs && result->lez()->ToCString().get()[0] & 2;
+
+ // allow_lazy |= ourOpt;
+ // allow_lazy_without_ctx |= ourOpt;
+  if(isOurs){
+    String* fname = (String*)(result->name());
+    FILE* fp = fopen("ourcommentlara","a");
+     
+    fprintf(fp, "Created info (%p) for %s, [ %d,%d] [%d,%d]\n", result, fname->ToCString().get(), allow_lazy, allow_lazy_without_ctx, ourOpt, noOpt);
+    fclose(fp);
+    if(noOpt){
+      result->DisableOptimization(kOptimizationDisabled);
+    }
+
+  }
   result->set_allows_lazy_compilation(allow_lazy);
   result->set_allows_lazy_compilation_without_context(allow_lazy_without_ctx);
 

@@ -372,7 +372,7 @@ void Scanner::TryToParseSourceURLComment() {
 }
 
 Token::Value Scanner::runLEZ(){
-  //FILE *fp = fopen("ourcommentlara", "a");
+  FILE *fp = fopen("ourcommentlara", "a");
   char str[100];
   int firstnum;
   int mynum = 0;
@@ -404,11 +404,11 @@ Token::Value Scanner::runLEZ(){
       int num = 0;
       if(section == 2){
         num = mynum << (32 - 8);
-        //fprintf(fp, "Inserting for %s: %d (noextra) Res: %d\n", str, mynum, num);
       } else {
         num = (firstnum << (32-8)) | mynum;
         //fprintf(fp, "Inserting for %s: %d E:%d Res: %d\n", str, firstnum, mynum, num);
       }
+      fprintf(fp, "Inserting info into isolate for: %s\n", str);
       map->insert(FlagMap::value_type(std::string(str), num));
       mynum = 0;
       section = 1;
@@ -417,7 +417,7 @@ Token::Value Scanner::runLEZ(){
     Advance();
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
-      //fclose(fp);
+      fclose(fp);
       return Token::WHITESPACE;
     }
   }

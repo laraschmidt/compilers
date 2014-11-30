@@ -1227,8 +1227,13 @@ MaybeHandle<Object> Factory::NewError(const char* constructor,
 
 
 inline void AddFlags(Handle<SharedFunctionInfo> info,
-                     Isolate * iso, 
-                     String * fnname){
+                     Isolate * iso){
+
+  Object * s = info->name();
+  // To remove a ton of anonymous fcns
+  if(!s->IsString() || ((String*) s)->length() == 0)
+     return;
+  String * fnname = (String*) s;
 
   //fprintf(fp, "iseren %s %p\n", fnname->ToCString().get(), (void*) *info);
   if(info->lez()->length() == 0){
@@ -1236,7 +1241,7 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
     auto range = map->equal_range(fnname->ToCString().get());
     if(range.first != range.second){
       FILE* fp = fopen("ourcommentlara","a");
-      fprintf(fp, "Adding %s to list\n", fnname->ToCString().get());
+      fprintf(fp, "Adding info to sharedinfo %s\n", fnname->ToCString().get());
       char *  n = new char[LEZARRAYSIZE];
       memset(n, 0, LEZARRAYSIZE);
       FlagMap::iterator it;
@@ -1256,9 +1261,9 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
           //int res = 0;
           //memcpy(&res, &n[spot], 4); res is result
         }
-        fprintf(fp, "Optimization%d! ExtraData: %d n[0]: %d\n", loc, num & 0xFFFFFF, n[0]);
+        //fprintf(fp, "Optimization%d! ExtraData: %d n[0]: %d\n", loc, num & 0xFFFFFF, n[0]);
       }
-      map->erase(range.first, range.second);
+      //map->erase(range.first, range.second);
       Handle<String> name = iso->factory()->NewStringFromUtf8(CStrVector(n)).ToHandleChecked();
       info->set_lez(*name);
       fclose(fp);
@@ -1271,10 +1276,7 @@ void Factory::InitializeFunction(Handle<JSFunction> function,
                                  Handle<Context> context) {
 
   // Add ourfunction code LARA ESHA 
-  bool runOurs = false;
-  Object * s = info->name();
-  // To remove a ton of anonymous fcns
-  runOurs = s->IsString() && ((String*) s)->length() > 0;
+  AddFlags(info, isolate());
 
   function->initialize_properties();
   function->initialize_elements();
@@ -1284,8 +1286,6 @@ void Factory::InitializeFunction(Handle<JSFunction> function,
   function->set_prototype_or_initial_map(*the_hole_value());
   function->set_literals_or_bindings(*empty_fixed_array());
   function->set_next_function_link(*undefined_value());
-  if(runOurs)
-    AddFlags(info, isolate(), (String*) s);
 }
 
 
@@ -2006,10 +2006,7 @@ Handle<SharedFunctionInfo> Factory::NewSharedFunctionInfo(
   shared->set_feedback_vector(*feedback_vector);
   shared->set_kind(kind);
 
-  Object * s = shared->name();
-  // To remove a ton of anonymous fcns
-  if(s->IsString() && ((String*) s)->length() > 0)
-    AddFlags(shared, isolate(), (String*) s);
+  AddFlags(shared, isolate());
   int literals_array_size = number_of_literals;
   // If the function contains object, regexp or array literals,
   // allocate extra space for a literals array prefix containing the
