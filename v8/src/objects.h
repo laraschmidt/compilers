@@ -6708,7 +6708,7 @@ class SharedFunctionInfo: public HeapObject {
   // all functions are anonymous but are assigned to object
   // properties.
   DECL_ACCESSORS(inferred_name, String)
-  DECL_ACCESSORS(lez, String)
+  DECL_ACCESSORS(lez, FixedArray)
 
   // The function's name if it is non-empty, otherwise the inferred name.
   String* DebugName();

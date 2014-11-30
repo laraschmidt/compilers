@@ -5429,7 +5429,7 @@ ACCESSORS(SharedFunctionInfo, function_data, Object, kFunctionDataOffset)
 ACCESSORS(SharedFunctionInfo, script, Object, kScriptOffset)
 ACCESSORS(SharedFunctionInfo, debug_info, Object, kDebugInfoOffset)
 ACCESSORS(SharedFunctionInfo, inferred_name, String, kInferredNameOffset)
-ACCESSORS(SharedFunctionInfo, lez, String, kLEZOffset)
+ACCESSORS(SharedFunctionInfo, lez, FixedArray, kLEZOffset)
 
 
 SMI_ACCESSORS(FunctionTemplateInfo, length, kLengthOffset)

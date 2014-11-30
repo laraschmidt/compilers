@@ -861,24 +861,25 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
   ASSIGN_RETURN_ON_EXCEPTION(info.isolate(), result,
                              GetUnoptimizedCodeCommon(&info), Code);
   
-  bool ourOpt=0;
-  if(info.shared_info()->lez()->length() != 0 )
-    ourOpt = info.shared_info()->lez()->ToCString().get()[0] & 1;
+  //bool ourOpt=0;
+  //if(info.shared_info()->lez()->length() != 0 )
+  //  ourOpt = info.shared_info()->lez()->ToCString().get()[0] & 1;
 
   if ((FLAG_always_opt &&
       info.isolate()->use_crankshaft() &&
       !info.shared_info()->optimization_disabled() &&
-      !info.isolate()->DebuggerHasBreakPoints())|| ourOpt) {
-    FILE* fp = fopen("ourcommentlara","a");
-    fprintf(fp, "Tried to compile %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
-    fclose(fp);
+      !info.isolate()->DebuggerHasBreakPoints())){//|| ourOpt) {
+    //FILE* fp = fopen("ourcommentlara","a");
+    //fprintf(fp, "Tried to compile %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
+    //fclose(fp);
+    //*/
     Handle<Code> opt_code;
     if (Compiler::GetOptimizedCode(
             function, result,
             Compiler::NOT_CONCURRENT).ToHandle(&opt_code)) {
-      FILE* fp = fopen("ourcommentlara","a");
-      fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
-      fclose(fp);
+      //FILE* fp = fopen("ourcommentlara","a");
+      //fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
+      //fclose(fp);
       result = opt_code;
     }
   }
@@ -1320,7 +1321,7 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
       info.code(), scope_info, info.feedback_vector());
   SetFunctionInfo(result, literal, false, script);
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
-  bool ourOpt=false, isOurs = false, noOpt=false;
+/*  bool ourOpt=false, isOurs = false, noOpt=false;
   isOurs = result->lez()->length() != 0;
   ourOpt = isOurs && result->lez()->ToCString().get()[0] & 1;
   noOpt = isOurs && result->lez()->ToCString().get()[0] & 2;
@@ -1337,7 +1338,7 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
       result->DisableOptimization(kOptimizationDisabled);
     }
 
-  }
+  }*/
   result->set_allows_lazy_compilation(allow_lazy);
   result->set_allows_lazy_compilation_without_context(allow_lazy_without_ctx);
 

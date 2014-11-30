@@ -9109,9 +9109,9 @@ void JSFunction::MarkForOptimization() {
   DCHECK(!shared()->is_generator());
   set_code_no_write_barrier(
       GetIsolate()->builtins()->builtin(Builtins::kCompileOptimized));
-  FILE* fp = fopen("ourcommentlara","a");
-  fprintf(fp, "Marking for compilation %s ", ((String*)(shared()->name()))->ToCString().get());
-  fclose(fp);
+//  FILE* fp = fopen("ourcommentlara","a");
+//  fprintf(fp, "Marking for compilation %s ", ((String*)(shared()->name()))->ToCString().get());
+//  fclose(fp);
   // No write barrier required, since the builtin is part of the root set.
 }
 

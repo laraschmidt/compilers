@@ -1228,27 +1228,29 @@ MaybeHandle<Object> Factory::NewError(const char* constructor,
 
 inline void AddFlags(Handle<SharedFunctionInfo> info,
                      Isolate * iso){
-
   Object * s = info->name();
   // To remove a ton of anonymous fcns
   if(!s->IsString() || ((String*) s)->length() == 0)
      return;
-  String * fnname = (String*) s;
 
-  //fprintf(fp, "iseren %s %p\n", fnname->ToCString().get(), (void*) *info);
   if(info->lez()->length() == 0){
+    String * fnname = (String*) s;
     FlagMap * map = iso->GetMap();
     auto range = map->equal_range(fnname->ToCString().get());
     if(range.first != range.second){
       FILE* fp = fopen("ourcommentlara","a");
       fprintf(fp, "Adding info to sharedinfo %s\n", fnname->ToCString().get());
-      char *  n = new char[LEZARRAYSIZE];
-      memset(n, 0, LEZARRAYSIZE);
+      int * n = new int[LEZARRAYSIZE];
+      int i = 0;
+      for(i = 0; i < LEZARRAYSIZE; i++){
+        n[i] = -1;
+      }
+      n[0] = 0;
       FlagMap::iterator it;
       for(it = range.first; it != range.second; ++ it){
         int num = it->second;
         int loc = it->second >> (32-8);
-        n[loc/8] |= 1 << (loc %8);
+        n[0] |= 1 << loc;
         int spot = 0;
         switch(static_cast<LezFlags>(loc)){
            case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
@@ -1256,16 +1258,15 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
            default: break;
         }
         if(spot != 0){
-          int tmp = num & 0xFFFFFF;
-          memcpy(&n[spot], &tmp, 4);
-          //int res = 0;
-          //memcpy(&res, &n[spot], 4); res is result
+          n[spot] = num & 0xFFFFFF;
         }
-        //fprintf(fp, "Optimization%d! ExtraData: %d n[0]: %d\n", loc, num & 0xFFFFFF, n[0]);
       }
+      Handle<FixedArray> fa = iso->factory()->NewFixedArray(LEZARRAYSIZE);
+      for(i = 0; i < LEZARRAYSIZE; i++)
+        fa->set(i, Smi::FromInt(n[i]));
       //map->erase(range.first, range.second);
-      Handle<String> name = iso->factory()->NewStringFromUtf8(CStrVector(n)).ToHandleChecked();
-      info->set_lez(*name);
+      info->set_lez(*fa);
+      //int f = static_cast<Smi*>(info->lez()->get(0))->value();
       fclose(fp);
     }
   }
@@ -1438,9 +1439,10 @@ Handle<JSFunction> Factory::NewFunctionFromSharedFunctionInfo(
     return result;
   }
   
-  bool ourOpt=0;
-  if(info->lez()->length() != 0 )
-    ourOpt = info->lez()->ToCString().get()[0] & 1;
+  //lez here
+  //bool ourOpt=0;
+  //if(info->lez()->length() != 0 )
+  //  ourOpt = info->lez()->ToCString().get()[0] & 1;
   
   if ((isolate()->use_crankshaft() &&
       FLAG_always_opt &&
@@ -1448,8 +1450,7 @@ Handle<JSFunction> Factory::NewFunctionFromSharedFunctionInfo(
       !info->is_toplevel() &&
       info->allows_lazy_compilation() &&
       !info->optimization_disabled() &&
-      !isolate()->DebuggerHasBreakPoints()) || 
-      (isolate()->use_crankshaft() && ourOpt)) {
+      !isolate()->DebuggerHasBreakPoints())){// && ourOpt)) {
     result->MarkForOptimization();
   }
   return result;
@@ -2069,7 +2070,8 @@ Handle<SharedFunctionInfo> Factory::NewSharedFunctionInfo(
   share->set_script(*undefined_value(), SKIP_WRITE_BARRIER);
   share->set_debug_info(*undefined_value(), SKIP_WRITE_BARRIER);
   share->set_inferred_name(*empty_string(), SKIP_WRITE_BARRIER);
-  share->set_lez(*empty_string(), SKIP_WRITE_BARRIER);
+  Handle<FixedArray> arra = NewFixedArray(0);
+  share->set_lez(*arra, SKIP_WRITE_BARRIER);
   Handle<TypeFeedbackVector> feedback_vector = NewTypeFeedbackVector(0);
   share->set_feedback_vector(*feedback_vector, SKIP_WRITE_BARRIER);
   share->set_profiler_ticks(0);
