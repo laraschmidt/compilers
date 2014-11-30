@@ -594,7 +594,6 @@ static void SetFunctionInfo(Handle<SharedFunctionInfo> function_info,
   function_info->set_is_anonymous(lit->is_anonymous());
   function_info->set_is_toplevel(is_toplevel);
   function_info->set_inferred_name(*lit->inferred_name());
-  function_info->set_lez(*lit->inferred_name());
   function_info->set_allows_lazy_compilation(lit->AllowsLazyCompilation());
   function_info->set_allows_lazy_compilation_without_context(
       lit->AllowsLazyCompilationWithoutContext());
@@ -861,15 +860,25 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
   Handle<Code> result;
   ASSIGN_RETURN_ON_EXCEPTION(info.isolate(), result,
                              GetUnoptimizedCodeCommon(&info), Code);
+  
+  bool ourOpt=0;
+  if(info.shared_info()->lez()->length() != 0 )
+    ourOpt = info.shared_info()->lez()->ToCString().get()[0] & 1;
 
-  if (FLAG_always_opt &&
+  if ((FLAG_always_opt &&
       info.isolate()->use_crankshaft() &&
       !info.shared_info()->optimization_disabled() &&
-      !info.isolate()->DebuggerHasBreakPoints()) {
+      !info.isolate()->DebuggerHasBreakPoints())|| ourOpt) {
+    FILE* fp = fopen("ourcommentlara","a");
+    fprintf(fp, "Tried to compile %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
+    fclose(fp);
     Handle<Code> opt_code;
     if (Compiler::GetOptimizedCode(
             function, result,
             Compiler::NOT_CONCURRENT).ToHandle(&opt_code)) {
+      FILE* fp = fopen("ourcommentlara","a");
+      fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
+      fclose(fp);
       result = opt_code;
     }
   }
@@ -1311,6 +1320,16 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
       info.code(), scope_info, info.feedback_vector());
   SetFunctionInfo(result, literal, false, script);
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
+  bool ourOpt=0;
+  if(result->lez()->length() != 0)
+    ourOpt = result->lez()->ToCString().get()[0] & 1;
+  
+  allow_lazy |= ourOpt;
+  allow_lazy_without_ctx |= ourOpt;
+  FILE* fp = fopen("ourcommentlara","a");
+  //String* fnname = (String*)(result->name());
+  fprintf(fp, "Compiling %s lez is %s yes? %d\n", ((String*)(result->name()))->ToCString().get(), result->lez()->ToCString().get(), ourOpt);
+  fclose(fp);
   result->set_allows_lazy_compilation(allow_lazy);
   result->set_allows_lazy_compilation_without_context(allow_lazy_without_ctx);
 

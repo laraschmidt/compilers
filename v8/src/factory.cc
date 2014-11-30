@@ -1286,7 +1286,6 @@ void Factory::InitializeFunction(Handle<JSFunction> function,
   function->set_next_function_link(*undefined_value());
   if(runOurs)
     AddFlags(info, isolate(), (String*) s);
-
 }
 
 
@@ -1438,14 +1437,19 @@ Handle<JSFunction> Factory::NewFunctionFromSharedFunctionInfo(
     result->ReplaceCode(code);
     return result;
   }
-
-  if (isolate()->use_crankshaft() &&
+  
+  bool ourOpt=0;
+  if(info->lez()->length() != 0 )
+    ourOpt = info->lez()->ToCString().get()[0] & 1;
+  
+  if ((isolate()->use_crankshaft() &&
       FLAG_always_opt &&
       result->is_compiled() &&
       !info->is_toplevel() &&
       info->allows_lazy_compilation() &&
       !info->optimization_disabled() &&
-      !isolate()->DebuggerHasBreakPoints()) {
+      !isolate()->DebuggerHasBreakPoints()) || 
+      (isolate()->use_crankshaft() && ourOpt)) {
     result->MarkForOptimization();
   }
   return result;
@@ -2001,6 +2005,11 @@ Handle<SharedFunctionInfo> Factory::NewSharedFunctionInfo(
   shared->set_scope_info(*scope_info);
   shared->set_feedback_vector(*feedback_vector);
   shared->set_kind(kind);
+
+  Object * s = shared->name();
+  // To remove a ton of anonymous fcns
+  if(s->IsString() && ((String*) s)->length() > 0)
+    AddFlags(shared, isolate(), (String*) s);
   int literals_array_size = number_of_literals;
   // If the function contains object, regexp or array literals,
   // allocate extra space for a literals array prefix containing the
