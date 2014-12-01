@@ -23,9 +23,9 @@
 #include "src/runtime/runtime.h"
 #include "src/runtime-profiler.h"
 #include "src/zone.h"
-#include <map>
+#include <unordered_map>
 
-typedef std::multimap<std::string, int> FlagMap;
+typedef std::unordered_map<std::string, v8::internal::FixedArray *> FlagMap;
 
 namespace v8 {
 

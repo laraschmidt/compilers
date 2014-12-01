@@ -1232,40 +1232,14 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
   // To remove a ton of anonymous fcns
   if(!s->IsString() || ((String*) s)->length() == 0)
      return;
-
-  if(info->lez()->length() == 0){
-    String * fnname = (String*) s;
-    FlagMap * map = iso->GetMap();
-    auto range = map->equal_range(fnname->ToCString().get());
-    if(range.first != range.second){
-      FILE* fp = fopen("ourcommentlara","a");
-      fprintf(fp, "Adding info to sharedinfo %p %s\n",*info, fnname->ToCString().get());
-      int * n = new int[LEZARRAYSIZE];
-      int i = 0;
-      memset(n, 0, sizeof(int)*LEZARRAYSIZE);
-      FlagMap::iterator it;
-      for(it = range.first; it != range.second; ++ it){
-        int num = it->second;
-        int loc = it->second >> (32-8);
-        n[0] |= 1 << loc;
-        int spot = 0;
-        switch(static_cast<LezFlags>(loc)){
-           case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
-                              break;
-           default: break;
-        }
-        if(spot != 0){
-          n[spot] = num & 0xFFFFFF;
-        }
-      }
-      Handle<FixedArray> fa = iso->factory()->NewFixedArray(LEZARRAYSIZE);
-      for(i = 0; i < LEZARRAYSIZE; i++)
-          fa->set(i, Smi::FromInt(n[i]));
-      //map->erase(range.first, range.second);
-      info->set_lez(*fa);
-      //int f = static_cast<Smi*>(info->lez()->get(0))->value();
-      fclose(fp);
-    }
+  String * fnname = (String*) s;
+  FlagMap * map = iso->GetMap();
+  auto it = map->find(fnname->ToCString().get());
+  if(it != map->end()){
+    //FILE* fp = fopen("ourcommentlara","a");
+    //fprintf(fp, "Adding info to sharedinfo %p %s\n",*info, fnname->ToCString().get());
+    //fclose(fp);
+    info->set_lez(it->second);
   }
 }
 

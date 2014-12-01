@@ -372,7 +372,7 @@ void Scanner::TryToParseSourceURLComment() {
 }
 
 Token::Value Scanner::runLEZ(){
-  FILE *fp = fopen("ourcommentlara", "a");
+  //FILE *fp = fopen("ourcommentlara", "a");
   char str[100];
   int firstnum;
   int mynum = 0;
@@ -401,15 +401,35 @@ Token::Value Scanner::runLEZ(){
       mynum = mynum*10 + (currch-'0');
     } else  if(section > 1 && currch==';'){
 	  str[len]= '\0';
-      int num = 0;
+      int num = 0, extra = -1;
       if(section == 2){
-        num = mynum << (32 - 8);
+        num = mynum;
       } else {
-        num = (firstnum << (32-8)) | mynum;
-        //fprintf(fp, "Inserting for %s: %d E:%d Res: %d\n", str, firstnum, mynum, num);
+        num = firstnum;
+        extra =  mynum;
       }
-      fprintf(fp, "Inserting info into isolate for: %s\n", str);
-      map->insert(FlagMap::value_type(std::string(str), num));
+      FixedArray * fa;
+      auto it = map->find(std::string(str));
+      if(it != map->end()){
+        fa = it->second; 
+      } else {
+        fa = *(iso->factory()->NewFixedArray(LEZARRAYSIZE));
+        map->insert(FlagMap::value_type(std::string(str), fa));
+        fa->set(0,Smi::FromInt(0));
+      }
+     
+      int old = static_cast<Smi*>(fa->get(0))->value() | 1 << num;
+      fa->set(0, Smi::FromInt(old));
+      int spot = 0;
+      switch(static_cast<LezFlags>(num)){
+           case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
+                              break;
+           default: break;
+      }
+      if(spot != 0){
+        fa->set(spot, Smi::FromInt(extra));
+      }
+      //fprintf(fp, "Inserting info into isolate for: %s %d %d\n", str, num, extra);
       mynum = 0;
       section = 1;
       len=0;
@@ -417,7 +437,7 @@ Token::Value Scanner::runLEZ(){
     Advance();
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
-      fclose(fp);
+      //fclose(fp);
       return Token::WHITESPACE;
     }
   }
