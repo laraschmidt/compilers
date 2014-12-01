@@ -387,6 +387,22 @@ void FullCodeGenerator::EmitReturnSequence() {
     }
     // Pretend that the exit is a backwards jump to the entry.
     int weight = 1;
+
+    //lez
+    // Sometimes this info_->shared_info is null. I can't check if it is null so it throws a segfault. Might make it impossible to get here. THe shared info doesnt seem to be hte one we added on anyway and the thing is only called 20 times
+    
+    // int flag = FLAG_self_opt_count;
+   // if(fa->length() != 0) {
+    //if(p != 0){
+    //  FILE* fp = fopen("ourcommentlara","a");
+     //int ourOption = static_cast<Smi*>(fa->get(DEOPTAFTERSPOT))->value();
+    //  if(ourOption != 0)
+    //    flag = ourOption + 1;
+    //  fprintf(fp, "xxx%p HEREEEEEEEEEEEE \n", info_->shared_info());
+    //  fclose(fp);
+   // }
+    
+
     if (info_->ShouldSelfOptimize()) {
       weight = FLAG_interrupt_budget / FLAG_self_opt_count;
     } else {

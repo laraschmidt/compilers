@@ -1239,13 +1239,10 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
     auto range = map->equal_range(fnname->ToCString().get());
     if(range.first != range.second){
       FILE* fp = fopen("ourcommentlara","a");
-      fprintf(fp, "Adding info to sharedinfo %s\n", fnname->ToCString().get());
+      fprintf(fp, "Adding info to sharedinfo %p %s\n",*info, fnname->ToCString().get());
       int * n = new int[LEZARRAYSIZE];
       int i = 0;
-      for(i = 0; i < LEZARRAYSIZE; i++){
-        n[i] = -1;
-      }
-      n[0] = 0;
+      memset(n, 0, sizeof(int)*LEZARRAYSIZE);
       FlagMap::iterator it;
       for(it = range.first; it != range.second; ++ it){
         int num = it->second;
@@ -1263,7 +1260,7 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
       }
       Handle<FixedArray> fa = iso->factory()->NewFixedArray(LEZARRAYSIZE);
       for(i = 0; i < LEZARRAYSIZE; i++)
-        fa->set(i, Smi::FromInt(n[i]));
+          fa->set(i, Smi::FromInt(n[i]));
       //map->erase(range.first, range.second);
       info->set_lez(*fa);
       //int f = static_cast<Smi*>(info->lez()->get(0))->value();
@@ -1440,12 +1437,18 @@ Handle<JSFunction> Factory::NewFunctionFromSharedFunctionInfo(
   }
   
   //lez here
-  //bool ourOpt=0;
-  //if(info->lez()->length() != 0 )
-  //  ourOpt = info->lez()->ToCString().get()[0] & 1;
-  
+  /*
+  bool isOurs = info->lez()->length() != 0;
+  bool ourOpt = isOurs && static_cast<Smi*>(info->lez()->get(0))->value() & 1;
+
+  FILE * fp = fopen("ourcommentlara", "w+");
+  fprintf(fp, "ShouldIPreCompile? %s %d %d %d %d %d %d %d\n", ((String*)(info->name()))->ToCString().get(), ourOpt, isolate()->use_crankshaft(), result->is_compiled() ,!info->is_toplevel() , !info->optimization_disabled(), !isolate()->DebuggerHasBreakPoints(),ourOpt);
+      fclose(fp);
+
+*/
+
   if ((isolate()->use_crankshaft() &&
-      FLAG_always_opt &&
+      (FLAG_always_opt ) &&//|| ourOpt) &&
       result->is_compiled() &&
       !info->is_toplevel() &&
       info->allows_lazy_compilation() &&

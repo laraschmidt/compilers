@@ -862,24 +862,25 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
                              GetUnoptimizedCodeCommon(&info), Code);
   
   //bool ourOpt=0;
-  //if(info.shared_info()->lez()->length() != 0 )
-  //  ourOpt = info.shared_info()->lez()->ToCString().get()[0] & 1;
+  bool isOurs = info.shared_info()->lez()->length() != 0;
 
-  if ((FLAG_always_opt &&
+  bool  ourOpt = isOurs && static_cast<Smi*>(info.shared_info()->lez()->get(0))->value() & 1;
+    FILE* fp = fopen("ourcommentlara","a");
+    fprintf(fp, "ShouldICompile? %s %d %d %d %d %d \n", ((String*)(info.shared_info()->name()))->ToCString().get(), ourOpt, info.isolate()->use_crankshaft(), !info.shared_info()->optimization_disabled(), !info.isolate()->DebuggerHasBreakPoints(), FLAG_always_opt);
+    fclose(fp);
+
+
+  if (((FLAG_always_opt || ourOpt) &&
       info.isolate()->use_crankshaft() &&
       !info.shared_info()->optimization_disabled() &&
-      !info.isolate()->DebuggerHasBreakPoints())){//|| ourOpt) {
-    //FILE* fp = fopen("ourcommentlara","a");
-    //fprintf(fp, "Tried to compile %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
-    //fclose(fp);
-    //*/
+      !info.isolate()->DebuggerHasBreakPoints())){
     Handle<Code> opt_code;
     if (Compiler::GetOptimizedCode(
             function, result,
             Compiler::NOT_CONCURRENT).ToHandle(&opt_code)) {
-      //FILE* fp = fopen("ourcommentlara","a");
-      //fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
-      //fclose(fp);
+      FILE* fp = fopen("ourcommentlara","a");
+      fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
+      fclose(fp);
       result = opt_code;
     }
   }
@@ -1321,10 +1322,12 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
       info.code(), scope_info, info.feedback_vector());
   SetFunctionInfo(result, literal, false, script);
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
-/*  bool ourOpt=false, isOurs = false, noOpt=false;
+
+  
+  bool ourOpt=false, isOurs = false, noOpt=false;
   isOurs = result->lez()->length() != 0;
-  ourOpt = isOurs && result->lez()->ToCString().get()[0] & 1;
-  noOpt = isOurs && result->lez()->ToCString().get()[0] & 2;
+  ourOpt = isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 1;
+  noOpt =  isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 2;
 
  // allow_lazy |= ourOpt;
  // allow_lazy_without_ctx |= ourOpt;
@@ -1332,13 +1335,13 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
     String* fname = (String*)(result->name());
     FILE* fp = fopen("ourcommentlara","a");
      
-    fprintf(fp, "Created info (%p) for %s, [ %d,%d] [%d,%d]\n", result, fname->ToCString().get(), allow_lazy, allow_lazy_without_ctx, ourOpt, noOpt);
+    fprintf(fp, "Created info (%p) for %s, [ %d,%d] [%d,%d] -%d\n", *result, fname->ToCString().get(), allow_lazy, allow_lazy_without_ctx, ourOpt, noOpt, FLAG_self_opt_count);
     fclose(fp);
     if(noOpt){
       result->DisableOptimization(kOptimizationDisabled);
     }
 
-  }*/
+  }
   result->set_allows_lazy_compilation(allow_lazy);
   result->set_allows_lazy_compilation_without_context(allow_lazy_without_ctx);
 

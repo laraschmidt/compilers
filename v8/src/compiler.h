@@ -503,6 +503,8 @@ class CompilationInfo {
   // during graph optimization.
   int opt_count_;
 
+  int lez_deref_after_;
+
   // Number of parameters used for compilation of stubs that require arguments.
   int parameter_count_;
 

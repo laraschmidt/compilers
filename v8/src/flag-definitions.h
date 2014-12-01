@@ -108,12 +108,11 @@ struct MaybeBoolFlag {
 #define LEZDEFINE
 // LEZ lez
 enum LezFlags { OPT, DEOPT, DEOPTAFTER };
-#define LEZARRAYSIZE 10 //4 chars is 32 bits. If bit 0 is set, flagenum 0 is true.
-// So array has 4 characters that are used as t/f flags for up to 32 optimizations.
-// If a flag has extra data it gets 4  bytes. The first byte spot is defined by these flags
-#define DEOPTAFTERSPOT 4 // Depot Gets the first spot
-#define SECONDOPTSPOT 8
-#define THIRDOPTSPOT 12
+#define LEZARRAYSIZE 5 // First int is flags. If bit 0 is set, flagenum 0 is true.
+// If a flag has extra data it gets another spot. The first byte spot is defined by these flags
+#define DEOPTAFTERSPOT 1 // Depot Gets the first spot
+#define SECONDOPTSPOT 2
+#define THIRDOPTSPOT 3
 
 #endif
 
