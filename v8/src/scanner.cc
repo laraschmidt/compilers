@@ -416,6 +416,7 @@ Token::Value Scanner::runLEZ(){
         fa = *(iso->factory()->NewFixedArray(LEZARRAYSIZE));
         map->insert(FlagMap::value_type(std::string(str), fa));
         fa->set(0,Smi::FromInt(0));
+        fa->set(DEOPTAFTERSPOT, Smi::FromInt(0));
       }
      
       int old = static_cast<Smi*>(fa->get(0))->value() | 1 << num;

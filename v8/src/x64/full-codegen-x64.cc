@@ -389,22 +389,21 @@ void FullCodeGenerator::EmitReturnSequence() {
     int weight = 1;
 
     //lez
-    // Sometimes this info_->shared_info is null. I can't check if it is null so it throws a segfault. Might make it impossible to get here. THe shared info doesnt seem to be hte one we added on anyway and the thing is only called 20 times
-    
-    // int flag = FLAG_self_opt_count;
-   // if(fa->length() != 0) {
-    //if(p != 0){
-    //  FILE* fp = fopen("ourcommentlara","a");
-     //int ourOption = static_cast<Smi*>(fa->get(DEOPTAFTERSPOT))->value();
-    //  if(ourOption != 0)
-    //    flag = ourOption + 1;
-    //  fprintf(fp, "xxx%p HEREEEEEEEEEEEE \n", info_->shared_info());
-    //  fclose(fp);
-   // }
+    int flag = FLAG_self_opt_count;
+    if(!info_->shared_info().is_null()){
+      if(info_->shared_info()->lez()->length() != 0){
+        int tmp = static_cast<Smi*>(info_->shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
+        if(tmp != 0)
+          flag = tmp;
+       // FILE* fp = fopen("ourcommentlara", "a");
+       // fprintf(fp, "%d", flag);
+       // fclose(fp);
+      }
+    }
     
 
     if (info_->ShouldSelfOptimize()) {
-      weight = FLAG_interrupt_budget / FLAG_self_opt_count;
+      weight = FLAG_interrupt_budget / flag;
     } else {
       int distance = masm_->pc_offset();
       weight = Min(kMaxBackEdgeWeight,

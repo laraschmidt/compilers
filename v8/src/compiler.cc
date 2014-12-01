@@ -1324,24 +1324,11 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
   SetFunctionInfo(result, literal, false, script);
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
 
-  
-  bool ourOpt=false, isOurs = false, noOpt=false;
-  isOurs = result->lez()->length() != 0;
-  ourOpt = isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 1;
-  noOpt =  isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 2;
+  bool isOurs = result->lez()->length() != 0;
+  bool noOpt =  isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 2;
 
- // allow_lazy |= ourOpt;
- // allow_lazy_without_ctx |= ourOpt;
-  if(isOurs){
-    String* fname = (String*)(result->name());
-    FILE* fp = fopen("ourcommentlara","a");
-     
-    fprintf(fp, "Created info (%p) for %s, [ %d,%d] [%d,%d] -%d\n", *result, fname->ToCString().get(), allow_lazy, allow_lazy_without_ctx, ourOpt, noOpt, FLAG_self_opt_count);
-    fclose(fp);
-    if(noOpt){
+  if(noOpt){
       result->DisableOptimization(kOptimizationDisabled);
-    }
-
   }
   result->set_allows_lazy_compilation(allow_lazy);
   result->set_allows_lazy_compilation_without_context(allow_lazy_without_ctx);
