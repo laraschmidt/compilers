@@ -395,9 +395,6 @@ void FullCodeGenerator::EmitReturnSequence() {
         int tmp = static_cast<Smi*>(info_->shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
         if(tmp != 0)
           flag = tmp;
-       // FILE* fp = fopen("ourcommentlara", "a");
-       // fprintf(fp, "%d", flag);
-       // fclose(fp);
       }
     }
     

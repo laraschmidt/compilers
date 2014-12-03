@@ -1236,10 +1236,12 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
   FlagMap * map = iso->GetMap();
   auto it = map->find(fnname->ToCString().get());
   if(it != map->end()){
-    //FILE* fp = fopen("ourcommentlara","a");
-    //fprintf(fp, "Adding info to sharedinfo %p %s\n",*info, fnname->ToCString().get());
-    //fclose(fp);
-    info->set_lez(*(it->second));
+    Handle<FixedArray> fa = iso->factory()->NewFixedArray(LEZARRAYSIZE);
+    int i =0;
+    for(i = 0; i < LEZARRAYSIZE; i++){
+      fa->set(i, Smi::FromInt(it->second[i]));
+    }
+    info->set_lez(*fa);
   }
 }
 

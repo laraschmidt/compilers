@@ -863,11 +863,13 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
   
   //bool ourOpt=0;
   bool isOurs = info.shared_info()->lez()->length() != 0;
-
+  int extra = static_cast<Smi*>(info.shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
+  int extra2 = static_cast<Smi*>(info.shared_info()->lez()->get(2))->value();
+  int extra3 = static_cast<Smi*>(info.shared_info()->lez()->get(3))->value();
   bool  ourOpt = isOurs && static_cast<Smi*>(info.shared_info()->lez()->get(0))->value() & 1;
   if(isOurs){
     FILE* fp = fopen("ourcommentlara","a");
-    fprintf(fp, "ShouldICompile? %s %d %d %d %d %d \n", ((String*)(info.shared_info()->name()))->ToCString().get(), ourOpt, info.isolate()->use_crankshaft(), !info.shared_info()->optimization_disabled(), !info.isolate()->DebuggerHasBreakPoints(), FLAG_always_opt);
+    fprintf(fp, "ShouldICompile? %s %d %d %d %d %d %d\n", ((String*)(info.shared_info()->name()))->ToCString().get(), ourOpt, extra2, !info.shared_info()->optimization_disabled(), extra3, FLAG_always_opt, extra);
     fclose(fp);
   }
 
