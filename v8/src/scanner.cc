@@ -408,12 +408,12 @@ Token::Value Scanner::runLEZ(){
         num = firstnum;
         extra =  mynum;
       }
-      FixedArray * fa;
+      Handle<FixedArray> fa;
       auto it = map->find(std::string(str));
       if(it != map->end()){
         fa = it->second; 
       } else {
-        fa = *(iso->factory()->NewFixedArray(LEZARRAYSIZE));
+        fa = iso->factory()->NewFixedArray(LEZARRAYSIZE);
         map->insert(FlagMap::value_type(std::string(str), fa));
         fa->set(0,Smi::FromInt(0));
         fa->set(DEOPTAFTERSPOT, Smi::FromInt(0));

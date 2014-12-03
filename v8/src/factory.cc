@@ -1239,7 +1239,7 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
     //FILE* fp = fopen("ourcommentlara","a");
     //fprintf(fp, "Adding info to sharedinfo %p %s\n",*info, fnname->ToCString().get());
     //fclose(fp);
-    info->set_lez(it->second);
+    info->set_lez(*(it->second));
   }
 }
 

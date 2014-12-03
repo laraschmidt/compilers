@@ -25,7 +25,7 @@
 #include "src/zone.h"
 #include <unordered_map>
 
-typedef std::unordered_map<std::string, v8::internal::FixedArray *> FlagMap;
+typedef std::unordered_map<std::string, v8::internal::Handle<v8::internal::FixedArray>> FlagMap;
 
 namespace v8 {
 
