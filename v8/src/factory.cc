@@ -1249,9 +1249,6 @@ void Factory::InitializeFunction(Handle<JSFunction> function,
                                  Handle<SharedFunctionInfo> info,
                                  Handle<Context> context) {
 
-  // Add ourfunction code LARA ESHA 
-  AddFlags(info, isolate());
-
   function->initialize_properties();
   function->initialize_elements();
   function->set_shared(*info);
@@ -1986,7 +1983,7 @@ Handle<SharedFunctionInfo> Factory::NewSharedFunctionInfo(
   shared->set_feedback_vector(*feedback_vector);
   shared->set_kind(kind);
 
-  AddFlags(shared, isolate());
+  if(!FLAG_no_run_lez_opt) AddFlags(shared, isolate());
   int literals_array_size = number_of_literals;
   // If the function contains object, regexp or array literals,
   // allocate extra space for a literals array prefix containing the

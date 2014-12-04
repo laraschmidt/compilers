@@ -377,6 +377,7 @@ DEFINE_INT(generic_ic_threshold, 30,
 DEFINE_INT(self_opt_count, 130, "call count before self-optimization")
 
 DEFINE_BOOL(trace_opt_verbose, false, "extra verbose compilation tracing")
+DEFINE_BOOL(no_run_lez_opt, false, "Don't allow for user defined optimizations.")
 DEFINE_IMPLICATION(trace_opt_verbose, trace_opt)
 
 // assembler-ia32.cc / assembler-arm.cc / assembler-x64.cc

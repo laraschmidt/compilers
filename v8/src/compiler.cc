@@ -861,16 +861,19 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
   ASSIGN_RETURN_ON_EXCEPTION(info.isolate(), result,
                              GetUnoptimizedCodeCommon(&info), Code);
   
-  //bool ourOpt=0;
-  bool isOurs = info.shared_info()->lez()->length() != 0;
-  int extra = static_cast<Smi*>(info.shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
-  int extra2 = static_cast<Smi*>(info.shared_info()->lez()->get(2))->value();
-  int extra3 = static_cast<Smi*>(info.shared_info()->lez()->get(3))->value();
-  bool  ourOpt = isOurs && static_cast<Smi*>(info.shared_info()->lez()->get(0))->value() & 1;
-  if(isOurs){
-    FILE* fp = fopen("ourcommentlara","a");
-    fprintf(fp, "ShouldICompile? %s %d %d %d %d %d %d\n", ((String*)(info.shared_info()->name()))->ToCString().get(), ourOpt, extra2, !info.shared_info()->optimization_disabled(), extra3, FLAG_always_opt, extra);
-    fclose(fp);
+  bool ourOpt = false;
+  if(!FLAG_no_run_lez_opt){
+    //bool ourOpt=0;
+    bool isOurs = info.shared_info()->lez()->length() != 0;
+    int extra = static_cast<Smi*>(info.shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
+    int extra2 = static_cast<Smi*>(info.shared_info()->lez()->get(2))->value();
+    int extra3 = static_cast<Smi*>(info.shared_info()->lez()->get(3))->value();
+    ourOpt = isOurs && static_cast<Smi*>(info.shared_info()->lez()->get(0))->value() & 1;
+    if(isOurs){
+      FILE* fp = fopen("ourcommentlara","a");
+      fprintf(fp, "ShouldICompile? %s %d %d %d %d %d %d\n", ((String*)(info.shared_info()->name()))->ToCString().get(), ourOpt, extra2, !info.shared_info()->optimization_disabled(), extra3, FLAG_always_opt, extra);
+      fclose(fp);
+    }
   }
 
   if (((FLAG_always_opt || ourOpt) &&
@@ -881,9 +884,11 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
     if (Compiler::GetOptimizedCode(
             function, result,
             Compiler::NOT_CONCURRENT).ToHandle(&opt_code)) {
-      FILE* fp = fopen("ourcommentlara","a");
-      fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
-      fclose(fp);
+      if(!FLAG_no_run_lez_opt) {
+        FILE* fp = fopen("ourcommentlara","a");
+        fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
+        fclose(fp);
+      }
       result = opt_code;
     }
   }
@@ -1326,11 +1331,14 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
   SetFunctionInfo(result, literal, false, script);
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
 
-  bool isOurs = result->lez()->length() != 0;
-  bool noOpt =  isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 2;
 
-  if(noOpt){
+  if(!FLAG_no_run_lez_opt) {
+    bool isOurs = result->lez()->length() != 0;
+    bool noOpt =  isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 2;
+ 
+    if(noOpt){
       result->DisableOptimization(kOptimizationDisabled);
+    }
   }
   result->set_allows_lazy_compilation(allow_lazy);
   result->set_allows_lazy_compilation_without_context(allow_lazy_without_ctx);

@@ -389,50 +389,53 @@ Token::Value Scanner::runLEZ(){
     // If we have reached the end of the multi-line comment, we
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
-    
-    FlagMap * map = iso->GetMap();
-    if(isalnum(currch) && section == 1){
-      str[len++] = currch;
-    } else if(currch == ','){
-      firstnum = mynum;
-      mynum = 0;
-      section++;
-    } else if (isdigit(currch)) {
-      mynum = mynum*10 + (currch-'0');
-    } else  if(section > 1 && currch==';'){
-	  str[len]= '\0';
-      int num = 0, extra = -1;
-      if(section == 2){
-        num = mynum;
-      } else {
-        num = firstnum;
-        extra =  mynum;
+    if(!FLAG_no_run_lez_opt) { 
+      FlagMap * map = iso->GetMap();
+      if(isalnum(currch) && section == 1){
+        str[len++] = currch;
+      } else if(currch == ','){
+        firstnum = mynum;
+        mynum = 0;
+        section++;
+      } else if (isdigit(currch)) {
+        mynum = mynum*10 + (currch-'0');
+      } else  if(section > 1 && currch==';'){
+    	str[len]= '\0';
+        int num = 0, extra = -1;
+        if(section == 2){
+          num = mynum;
+        } else {
+          num = firstnum;
+          extra =  mynum;
+        }
+        int * in;
+        auto it = map->find(std::string(str));
+        if(it != map->end()){
+          in = it->second; 
+        } else {
+          in = (int *) malloc(sizeof(int) * LEZARRAYSIZE);
+          map->insert(FlagMap::value_type(std::string(str), in));
+          memset(in, 0 , sizeof(int) * LEZARRAYSIZE);
+        }
+        in[0] = in[0] | 1 << num; 
+        int spot = 0;
+        switch(static_cast<LezFlags>(num)){
+             case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
+                                break;
+             default: break;
+        }
+        if(spot != 0){
+          in[spot] = extra;
+        }
+        fprintf(fp, "Inserting info into isolate for: %s %d %d\n", str, spot, extra);
+        mynum = 0;
+        section = 1;
+        len=0;
       }
-      int * in;
-      auto it = map->find(std::string(str));
-      if(it != map->end()){
-        in = it->second; 
-      } else {
-        in = (int *) malloc(sizeof(int) * LEZARRAYSIZE);
-        map->insert(FlagMap::value_type(std::string(str), in));
-        memset(in, 0 , sizeof(int) * LEZARRAYSIZE);
-      }
-      in[0] = in[0] | 1 << num; 
-      int spot = 0;
-      switch(static_cast<LezFlags>(num)){
-           case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
-                              break;
-           default: break;
-      }
-      if(spot != 0){
-        in[spot] = extra;
-      }
-      fprintf(fp, "Inserting info into isolate for: %s %d %d\n", str, spot, extra);
-      mynum = 0;
-      section = 1;
-      len=0;
     }
+    
     Advance();
+    
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
       fclose(fp);
