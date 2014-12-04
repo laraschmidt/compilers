@@ -8,7 +8,8 @@
   "content_scripts": [
     {
       "matches": ["http://www.google.com/*", "http://www.laraaschmidt.com/*"],
-      "js": ["myscript.js"]
+      "js": ["myscript.js"],
+      "run_at": "document_start"
     }
   ],
     "permissions": [
