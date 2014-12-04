@@ -1,0 +1,21 @@
+{
+    "name": "Tutorialzine Extension",
+    "version": "1.0",
+    "description": "Making your first Google Chrome extension.",
+    "browser_action":	{
+        "popup": "tutorialzine.html"
+    },
+    "manifest_version": 2,
+    "options_page": "options.html",
+
+  "content_scripts": [
+    {
+      "matches": ["http://www.google.com/*", "http://www.laraaschmidt.com/*"],
+      "js": ["myscript.js"]
+    }
+  ],
+    "permissions": [
+    "storage"
+  ]
+  
+}
