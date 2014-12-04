@@ -1983,7 +1983,7 @@ Handle<SharedFunctionInfo> Factory::NewSharedFunctionInfo(
   shared->set_feedback_vector(*feedback_vector);
   shared->set_kind(kind);
 
-  if(!FLAG_no_run_lez_opt) AddFlags(shared, isolate());
+  if(FLAG_run_lez_opt) AddFlags(shared, isolate());
   int literals_array_size = number_of_literals;
   // If the function contains object, regexp or array literals,
   // allocate extra space for a literals array prefix containing the

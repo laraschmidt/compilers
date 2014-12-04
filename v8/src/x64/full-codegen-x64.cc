@@ -390,7 +390,7 @@ void FullCodeGenerator::EmitReturnSequence() {
 
     //lez
     int flag = FLAG_self_opt_count;
-    if(!FLAG_no_run_lez_opt && !info_->shared_info().is_null()){
+    if(FLAG_run_lez_opt && !info_->shared_info().is_null()){
       if(info_->shared_info()->lez()->length() != 0){
         int tmp = static_cast<Smi*>(info_->shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
         if(tmp != 0)

@@ -389,7 +389,7 @@ Token::Value Scanner::runLEZ(){
     // If we have reached the end of the multi-line comment, we
     // consume the '/' and insert a whitespace. This way all
     // multi-line comments are treated as whitespace.
-    if(!FLAG_no_run_lez_opt) { 
+    if(FLAG_run_lez_opt) { 
       FlagMap * map = iso->GetMap();
       if(isalnum(currch) && section == 1){
         str[len++] = currch;

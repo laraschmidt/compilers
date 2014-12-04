@@ -862,7 +862,7 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
                              GetUnoptimizedCodeCommon(&info), Code);
   
   bool ourOpt = false;
-  if(!FLAG_no_run_lez_opt){
+  if(FLAG_run_lez_opt){
     //bool ourOpt=0;
     bool isOurs = info.shared_info()->lez()->length() != 0;
     int extra = static_cast<Smi*>(info.shared_info()->lez()->get(DEOPTAFTERSPOT))->value();
@@ -884,7 +884,7 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
     if (Compiler::GetOptimizedCode(
             function, result,
             Compiler::NOT_CONCURRENT).ToHandle(&opt_code)) {
-      if(!FLAG_no_run_lez_opt) {
+      if(FLAG_run_lez_opt) {
         FILE* fp = fopen("ourcommentlara","a");
         fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
         fclose(fp);
@@ -1332,7 +1332,7 @@ Handle<SharedFunctionInfo> Compiler::BuildFunctionInfo(
   RecordFunctionCompilation(Logger::FUNCTION_TAG, &info, result);
 
 
-  if(!FLAG_no_run_lez_opt) {
+  if(FLAG_run_lez_opt) {
     bool isOurs = result->lez()->length() != 0;
     bool noOpt =  isOurs && static_cast<Smi*>(result->lez()->get(0))->value() & 2;
  
