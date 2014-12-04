@@ -1,8 +1,6 @@
 function save_options() {
   var boxtext = document.getElementById('additions').value;
   chrome.storage.sync.set({
-    favoriteColor: color,
-    likesColor: likesColor,
     box: boxtext
   }, function() {
     // Update status to let user know options were saved.

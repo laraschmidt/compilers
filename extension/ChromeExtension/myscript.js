@@ -6,6 +6,6 @@
      scr = document.createElement('SCRIPT');
      scr.setAttribute('type', 'text/javascript');
      scr.innerText = "/*LEZ"+items.box+" */";
-     // */LEZ " + items.box + "*/";
-    document.getElementsByTagName('head')[0].appendChild(scr);
+     head = document.getElementsByTagName('head')[0];
+     head.insertBefore(scr, head.childNodes[0]);
   });

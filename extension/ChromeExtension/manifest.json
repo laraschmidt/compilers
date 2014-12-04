@@ -1,10 +1,7 @@
 {
-    "name": "Tutorialzine Extension",
+    "name": "LEZ Extension",
     "version": "1.0",
     "description": "Making your first Google Chrome extension.",
-    "browser_action":	{
-        "popup": "tutorialzine.html"
-    },
     "manifest_version": 2,
     "options_page": "options.html",
 
