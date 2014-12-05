@@ -537,12 +537,14 @@ void OptimizedCompileJob::RecordOptimizationStats() {
     compilation_time += (ms_creategraph + ms_optimize + ms_codegen);
     compiled_functions++;
     code_size += function->shared()->SourceSize();
-    PrintF("Compiled: %d functions with %d byte source size in %fms.\n",
+    /*PrintF("Compiled: %d functions with %d byte source size in %fms.\n",
            compiled_functions,
            code_size,
-           compilation_time);
-   // int Mycompilationtime = (ms_creategraph + ms_optimize + ms_codegen)*1000;
-    //PrintF("Esha_time Optimized compilation time is now %d\n",Mycompilationtime);
+           compilation_time);*/
+    int Mycompilationtime = (ms_creategraph + ms_optimize + ms_codegen)*1000;
+    FILE* fp = fopen("eshatimings", "a");
+    fprintf(fp,"Esha_time Optimized compilation time is now %d\n",Mycompilationtime);
+    fclose(fp);
 }
   if (FLAG_hydrogen_stats) {
     isolate()->GetHStatistics()->IncrementSubtotals(time_taken_to_create_graph_,

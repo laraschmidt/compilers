@@ -42,7 +42,8 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
     int argc,
     Handle<Object> args[]) {
   Isolate* isolate = function->GetIsolate();
-  struct timeval start;
+  struct timeval start, end;
+  long mtime, seconds, useconds;    
 
   // Entering JavaScript.
   VMState<JS> state(isolate);
@@ -93,13 +94,16 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
     value =
         CALL_GENERATED_CODE(stub_entry, function_entry, func, recv, argc, argv);
 
-  /*  gettimeofday(&end, NULL);
+    gettimeofday(&end, NULL);
 useconds = end.tv_usec - start.tv_usec;
 if(useconds<0) useconds=0;
+FILE* fp = fopen("eshatimings","a");
+
 if(function->IsOptimized())
-   PrintF("Esha_time Optimised execution is now %ld \n", useconds);
+   fprintf(fp,"Esha_time Optimised execution is now %ld \n", useconds);
 else
-   PrintF("Esha_time Full execution is now %ld \n", useconds);*/
+   fprintf(fp,"Esha_time Full execution is now %ld \n", useconds);
+fclose(fp);
 }
 
 #ifdef VERIFY_HEAP

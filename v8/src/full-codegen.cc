@@ -304,7 +304,8 @@ void BreakableStatementChecker::VisitSuperReference(SuperReference* expr) {}
 
 bool FullCodeGenerator::MakeCode(CompilationInfo* info) {
   Isolate* isolate = info->isolate();
-  struct timeval start;
+  struct timeval start, end;
+  long mtime, seconds, useconds;    
   gettimeofday(&start, NULL);
 
   TimerEventScope<TimerEventCompileFullCode> timer(info->isolate());
@@ -347,12 +348,14 @@ bool FullCodeGenerator::MakeCode(CompilationInfo* info) {
   info->SetCode(code);
   void* line_info = masm.positions_recorder()->DetachJITHandlerData();
   LOG_CODE_EVENT(isolate, CodeEndLinePosInfoRecordEvent(*code, line_info));
- /* gettimeofday(&end, NULL);
+  gettimeofday(&end, NULL);
  seconds  = end.tv_sec  - start.tv_sec;
  useconds = end.tv_usec - start.tv_usec;
+ FILE* fp = fopen("eshatimings","a");
  if(useconds<0) useconds=0;
-   PrintF("Esha_time Full compilation time is now %ld \n", useconds);*/
-  return true;
+   fprintf(fp,"Esha_time Full compilation time is now %ld \n", useconds);
+ fclose(fp);
+ return true;
 }
 
 
