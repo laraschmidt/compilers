@@ -98,7 +98,8 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
 useconds = end.tv_usec - start.tv_usec;
 if(useconds<0) useconds=0;
 FILE* fp = fopen("eshatimings","a");
-
+function->PrintName(fp);
+fprintf(fp, "TESTING: %d\n", function->IsOptimized());
 if(function->IsOptimized())
    fprintf(fp,"Esha_time Optimised execution is now %ld \n", useconds);
 else
