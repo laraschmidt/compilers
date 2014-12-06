@@ -47,7 +47,8 @@ for line in inputfile:
                     pl.fill_between(x, 25-(lastexec*5), 30-(lastexec*5), lw=0, color=colors[lastexec])
                     lastexec = 0
                     start = end
-                Full_execution_us+=int(linearray[5])                
+                               
+                Full_execution_us+=int(linearray[5])     
                 Full_execution_ms+=int(float(Full_execution_us)/1000)
                 Full_execution_us%=1000
                 end = end + int(linearray[5])
@@ -58,10 +59,10 @@ for line in inputfile:
                     pl.fill_between(x, 25-(lastexec*5), 30-(lastexec*5), lw=0, color=colors[lastexec])
                     lastexec = 1
                     start = end
-                    
-                Opt_execution_us%=1000
+                      
                 Opt_execution_us+=int(linearray[5])
                 Opt_execution_ms+=int(float(Opt_execution_us)/1000)
+                Opt_execution_us%=1000              
                 end = end + int(linearray[5])
     
         if (linearray[0]=='Esha_time' and linearray[2]=='compilation'):
@@ -75,9 +76,9 @@ for line in inputfile:
                     lastexec = 2
                     start = end
                     
-                Full_compilation_us%=1000
                 Full_compilation_us+=int(linearray[6])
-                Full_compilation_ms+=int(float(Full_compilation_us)/1000)
+                Full_compilation_ms+=int(float(Full_compilation_us)/1000)                
+                Full_compilation_us%=1000
                 end = end + int(linearray[6])
             else:
                 if lastexec != 3:                    
@@ -87,9 +88,9 @@ for line in inputfile:
                     lastexec = 3
                     start = end
                     
-                Opt_compilation_us%=1000
                 Opt_compilation_us+=int(linearray[6])
-                Opt_compilation_ms+=int(float(Opt_compilation_us)/1000)
+                Opt_compilation_ms+=int(float(Opt_compilation_us)/1000)                
+                Opt_compilation_us%=1000
                 end = end + int(linearray[6])
     except ValueError:
         continue
