@@ -92,7 +92,7 @@ for line in inputfile:
         continue
 pl.ylim([5,40])
 pl.grid(True)
-pl.show()
+savefig('foo.png', bbox_inches='tight')
 outputfile.writelines("Full compilation time is ")
 outputfile.write('%d ms  %d us \n' %(Full_compilation_ms,Full_compilation_us))
 outputfile.writelines("Full execution time is ")
