@@ -1,0 +1,28 @@
+
+cp Esha_parser.py testcases/Esha_parser.py
+cd testcases/
+mkdir $2
+cp Esha_parser.py $2/Esha_parser.py
+cd $2
+mkdir no_opt
+mkdir opt
+cp Esha_parser.py no_opt/Esha_parser.py
+cd no_opt
+rm ourcommentlara
+./../../../out/Debug/chrome --js-flags="--prof --no_run_lez_opt --trace_opt_verbose" --no-sandbox $1 > no_opt.out
+
+python Esha_parser.py eshatimings eshatimingsout
+cat eshatimingsout
+
+cd ../
+
+cp Esha_parser.py opt/Esha_parser.py
+cd opt/
+rm ourcommentlara
+./../../../out/Debug/chrome --js-flags="--prof  --trace_opt_verbose" --no-sandbox $1 > opt.out
+
+python Esha_parser.py eshatimings eshatimingsout
+cat eshatimingsout
+cat ourcommentlara
+cd ../../../
+

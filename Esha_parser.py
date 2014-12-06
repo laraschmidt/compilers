@@ -101,5 +101,11 @@ outputfile.writelines("Opt compilation time is ")
 outputfile.write('%d ms  %d us \n' %(Opt_compilation_ms,Opt_compilation_us))
 outputfile.writelines("Opt execution time is ")
 outputfile.write('%d ms  %d us \n' %(Opt_execution_ms,Opt_execution_us))
+outputfile.writelines("Total execution time is ")
+Total_us=Full_compilation_us+Full_execution_us+Opt_compilation_us+Opt_execution_us
+Total_ms = Full_compilation_ms+Full_execution_ms+Opt_compilation_ms+Opt_execution_ms+Total_us/1000
+Total_us = Total_us%100
+outputfile.write('%d ms  %d us \n' %(Total_ms,Total_us))
+
 inputfile.close()
 outputfile.close()
