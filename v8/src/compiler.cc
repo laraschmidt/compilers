@@ -756,7 +756,10 @@ static bool GetOptimizedCodeNow(CompilationInfo* info) {
   if (!CompileOptimizedPrologue(info)) return false;
 
   TimerEventScope<TimerEventRecompileSynchronous> timer(info->isolate());
-
+  //FILE* fp = fopen("ourcommentlara", "a");
+  //if(!info->shared_info().is_null())  
+  //  fprintf(fp,"Esha_time Optimized compilation time is now %s\n",((String*)(info->shared_info()->name()))->ToCString().get());
+  //fclose(fp);
   OptimizedCompileJob job(info);
   if (job.CreateGraph() != OptimizedCompileJob::SUCCEEDED ||
       job.OptimizeGraph() != OptimizedCompileJob::SUCCEEDED ||
@@ -871,11 +874,11 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
     int extra2 = static_cast<Smi*>(info.shared_info()->lez()->get(2))->value();
     int extra3 = static_cast<Smi*>(info.shared_info()->lez()->get(3))->value();
     ourOpt = isOurs && static_cast<Smi*>(info.shared_info()->lez()->get(0))->value() & 1;
-    if(isOurs){
+    /*if(isOurs){
       FILE* fp = fopen("ourcommentlara","a");
       fprintf(fp, "ShouldICompile? %s %d %d %d %d %d %d\n", ((String*)(info.shared_info()->name()))->ToCString().get(), ourOpt, extra2, !info.shared_info()->optimization_disabled(), extra3, FLAG_always_opt, extra);
       fclose(fp);
-    }
+    }*/
   }
 
   if (((FLAG_always_opt || ourOpt) &&
@@ -886,11 +889,11 @@ MaybeHandle<Code> Compiler::GetLazyCode(Handle<JSFunction> function) {
     if (Compiler::GetOptimizedCode(
             function, result,
             Compiler::NOT_CONCURRENT).ToHandle(&opt_code)) {
-      if(FLAG_run_lez_opt) {
+      /*if(FLAG_run_lez_opt) {
         FILE* fp = fopen("ourcommentlara","a");
         fprintf(fp, "Actually compiled %s \n", ((String*)(info.shared_info()->name()))->ToCString().get());
         fclose(fp);
-      }
+      }*/
       result = opt_code;
     }
   }

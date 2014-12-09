@@ -15,6 +15,7 @@
 #include "src/list-inl.h"
 #include "src/parser.h"
 #include "src/scanner.h"
+#include "sys/time.h"
 
 namespace v8 {
 namespace internal {
@@ -372,7 +373,10 @@ void Scanner::TryToParseSourceURLComment() {
 }
 
 Token::Value Scanner::runLEZ(){
-  FILE *fp = fopen("ourcommentlara", "a");
+  //FILE *fp = fopen("ourcommentlara", "a");
+  struct timeval start, end;
+  long mtime, seconds, useconds;    
+  gettimeofday(&start, NULL);
   char str[100];
   int firstnum;
   int mynum = 0;
@@ -427,7 +431,7 @@ Token::Value Scanner::runLEZ(){
         if(spot != 0){
           in[spot] = extra;
         }
-        fprintf(fp, "Inserting info into isolate for: %s %d %d\n", str, spot, extra);
+        //fprintf(fp, "Inserting info into isolate for: %s %d %d\n", str, spot, extra);
         mynum = 0;
         section = 1;
         len=0;
@@ -438,10 +442,17 @@ Token::Value Scanner::runLEZ(){
     
     if (ch == '*' && c0_ == '/') {
       c0_ = ' ';
+      //fclose(fp);
+      gettimeofday(&end, NULL);
+      useconds = end.tv_usec - start.tv_usec;
+      if(useconds<0) useconds=0;
+      FILE* fp = fopen("eshatimings","a");
+      fprintf(fp," Esha_time LEZ time is now %ld \n",  useconds);
       fclose(fp);
       return Token::WHITESPACE;
     }
   }
+
   return Token::ILLEGAL;
 }
 
@@ -449,7 +460,6 @@ Token::Value Scanner::SkipMultiLineComment() {
   DCHECK(c0_ == '*');
   Advance();
   
-  //LARA
   bool isOurs = true;
   int count = 0;
   while (c0_ >= 0) {
@@ -459,7 +469,7 @@ Token::Value Scanner::SkipMultiLineComment() {
       // a newline will make the comment count as a line-terminator.
       has_multiline_comment_before_next_ = true;
     }
-    if(isOurs){
+    if(isOurs && FLAG_run_lez_opt){
       switch(count){
         case 0: isOurs = c0_ == 'L' && iso != 0; break;
         case 1: isOurs = c0_ == 'E'; break;

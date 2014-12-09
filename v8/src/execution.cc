@@ -98,12 +98,14 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
 useconds = end.tv_usec - start.tv_usec;
 if(useconds<0) useconds=0;
 FILE* fp = fopen("eshatimings","a");
-function->PrintName(fp);
-fprintf(fp, "TESTING: %d\n", function->IsOptimized());
+//function->PrintName(fp);
+//fprintf(fp, "TESTING: %d\n", function->IsOptimized());
+
+
 if(function->IsOptimized())
-   fprintf(fp,"Esha_time Optimised execution is now %ld \n", useconds);
+   fprintf(fp," Esha_time Optimised execution is now %ld \n",  useconds);
 else
-   fprintf(fp,"Esha_time Full execution is now %ld \n", useconds);
+   fprintf(fp," Esha_time Full execution is now %ld \n",  useconds);
 fclose(fp);
 }
 
@@ -141,6 +143,12 @@ MaybeHandle<Object> Execution::Call(Isolate* isolate,
         isolate, callable, TryGetFunctionDelegate(isolate, callable), Object);
   }
   Handle<JSFunction> func = Handle<JSFunction>::cast(callable);
+
+  FILE* fp = fopen("eshatimings","a");
+  func->PrintName(fp);
+  fprintf(fp,"execution call\n"); 
+  fclose(fp); 
+
 
   // In sloppy mode, convert receiver.
   if (convert_receiver && !receiver->IsJSReceiver() &&
