@@ -68,7 +68,7 @@ We also struggled with the V8 garbage collector as they have special handle obje
 We ran into a lot of other issues with V8 including the PrintF (that they use for logging) not always actually printing out to stdout. Also it is very hard to narrow down page changes with V8 as this is handled in chrome and it just passes pieces of the javascript to V8 when needed. This makes sense as Chrome will load pieces of a page at a time but makes it hard for us to track timings.
 
 \section{Analysis and Results}
-First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. 
+First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. We also timed our overhead by timing the time it took to parse the extra code and the time it took to do the map lookups. This was very little overhead however we will include it in our results.
 
 To make our analysis clearer we will point out that V8 will automatically attempt to optimize a function after a certain number of consistent runs. This default flag is set to 130 though at times it seems to take more runs. Note that this 130 is what our 'optimize after X' flag changes. Default V8 will never optimize a function that runs less than 130 iterations. We use this to prove that some of our optimizations work.
 
@@ -78,7 +78,19 @@ We were able to verify that this optimization worked by picking a simple javascr
 Because the limitations of this optimization are not very interesting, we did not do futher analysis. However one can easily implement 'Optimize immediately' as something like 'Optimize after 10 runs'. TODO(laraschmidt) change this to 1 if it works but not sure if it does because no enough time.
 
 \subsection{Opt 2: Never Optimize}
-This optimization was the easiset to implement and test. V8 prints out that it wanted to optimize a function but couldn't and prints out the reason that we gave it. 
+This optimization was the easiset to implement and test. V8 prints out that it wanted to optimize a function but couldn't and prints out the reason that we gave it and we can see that it never optimizes the function in the text output. However we also ran a benchmark to prove that our deoptimization works. We created a function that had a forloop that ran 100000 times inside it. Then we ran that function 2000 times. We compared a run where we told the function not to optimize and run that ignored our extensions.\\ 
+
+
+\begin{tabular}{ l c r }
+  & \textbf{Unmodified} & \textbf{Modified} \\
+\textbf{Execution} &  1525.2$\pm$ 82.3 ms &  2731.7 $\pm$ 195.9 ms \\
+\textbf{Compile} & 87.65$\pm$ 8.7ms & 101.5 $\pm$ 15.0 ms \\
+\textbf{Overhead} &  0   &   .428 $\pm$ .425 ms  \\
+\end{tabular}\\
+
+The original run was a lot shorter than our run because that function was optimized. This shows that our deoptimization function works.
+
+Next we will try to find a case where our optimization actually causes faster execution. 
 
 \subsection{Opt 3: Optimized after k runs}
 
@@ -117,14 +129,8 @@ We
 
 \begin{thebibliography}{9}
 
-\bibitem{book} Peterson, Larry L. and Davie, Bruce S. Computer Networks, Fifth Edition: A Systems Approach. 5th Ed. 2011.
+\bibitem{name} Example if we need it
 
-\bibitem{typewiki} Wikipedia.org. Internet Media Types. \url{http://en.wikipedia.org/wiki/internet_media_type}.
-
-\bibitem{MIMEwiki} Wikipedia.org. MIME. \url{http://en.wikipedia.org/wiki/MIME}
-\bibitem{RSA} What is.com. S/MIME.  http://whatis.techtarget.com/definition/S-MIME-Secure-Multi-Purpose-Internet-Mail-Extensions
-\bibitem{SMIMEwiki} Wikipedia.org. S/MIME. 
-\url{http://en.wikipedia.org/wiki/S/MIME}
 
 
 
