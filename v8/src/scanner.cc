@@ -426,6 +426,8 @@ Token::Value Scanner::runLEZ(){
         switch(static_cast<LezFlags>(num)){
              case (DEOPTAFTER): spot = DEOPTAFTERSPOT;
                                 break;
+             case (BACKWEIGHT): spot = BACKWEIGHTSPOT;
+                                break;
              default: break;
         }
         if(spot != 0){

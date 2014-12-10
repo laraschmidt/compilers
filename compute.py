@@ -4,7 +4,9 @@ count = 0;
 exect = [];
 ocomp = [];
 fcomp = [];
+comp = []
 overhead = [];
+summ = [];
 
 with open('results') as f:
   for line in f.readlines():
@@ -21,7 +23,15 @@ with open('results') as f:
     if piece[1] == "execution":
       exect.append(int(piece[4])  + int(piece[7])/1000.0);
       
-for i in [exect, ocomp, fcomp, overhead]:
+for i in range(0,len(ocomp)):
+  comp.append(fcomp[i] + ocomp[i]);
+  summ.append(fcomp[i] + ocomp[i] + exect[i] + overhead[i]);   
+
+print ocomp
+print comp
+print fcomp
+
+for i in [exect, ocomp, fcomp, overhead, comp, summ]:
   print numpy.average(i), " +/- " , numpy.std(i);
       
       

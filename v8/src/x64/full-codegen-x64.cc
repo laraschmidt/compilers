@@ -350,6 +350,23 @@ void FullCodeGenerator::EmitBackEdgeBookkeeping(IterationStatement* stmt,
   int distance = masm_->SizeOfCodeGeneratedSince(back_edge_target);
   int weight = Min(kMaxBackEdgeWeight,
                    Max(1, distance / kCodeSizeMultiplier));
+
+  //lez
+  if(FLAG_run_lez_opt && !info_->shared_info().is_null()){
+    if(info_->shared_info()->lez()->length() != 0){
+        int tmp = static_cast<Smi*>(info_->shared_info()->lez()->get(BACKWEIGHTSPOT))->value();
+     // String * s = (String * ) info_->shared_info()->name();
+     // FILE * f = fopen("ourcommentlara", "a");
+     // fprintf(f,"-%d - %d - %d - %d %s\n", weight,kMaxBackEdgeWeight, distance, kCodeSizeMultiplier, s->ToCString().get());
+     // fclose(f);
+        if(tmp > 0)
+          weight = tmp;
+    }
+  }
+  
+  
+  
+
   EmitProfilingCounterDecrement(weight);
 
   __ j(positive, &ok, Label::kNear);
