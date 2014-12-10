@@ -31,30 +31,42 @@
 V8 is a compiler for javascript that is designed to make javascript as fast as possible. It has many optimizations and features. However one thing that V8 does not provide is a way for a developer or user to provide 'hints' to the compiler. Optimizing takes time and V8 doesn't want to lose time optimizing when it doesn't need to. For example it won't optimize a function until it is 'hot'. So therefore, by allowing the compiler to take hints about whether or not it should optimize a function, we can allow V8 to gain even more speed. There have been a few papers in the past that have explored similar things, \cite{}, however not ones that have explored in particular V8 and javascript optimizations.
 
 \section{API}
-We implemented three optimizations to prototype our ideas. A developer could implement these by adding code into the specific javascript file. The deverloper defines an optimization by function. This was because V8's optimization and code-tracking is done per function. The first optimization was 'Optimize Immediately'. This optimization would optimize a function immediatly upon it's creation. The second optimization was 'Never Optimize'. This would cause a function to never attempt to be optimized. The third optimization was 'Optimize After X runs'. This would cause the function to be marked for optimization after X runs. 
+We implemented three optimizations to prototype our ideas. A developer could implement these by adding code into the specific javascript file. The deverloper defines an optimization by function. This was because V8's optimization and code-tracking is done per function. The first optimization was 'Optimize Immediately'. This optimization would optimize a function immediatly upon it's creation. The second optimization was 'Never Optimize'. This would cause a function to never attempt to be optimized. 
 
-The programmer would specify these optimizations inside a multiline comment with a special header. They would also specify the function name and the respective optimization. An int was used to make parsing easier. 0 for 'Optimize Immediately', 1 for 'Never optimize' and 2 for 'Optimize after X runs'. The 'Optimize after X runs' was followed by another int that specified the given X. For example:
+The third optimization is 'Edge Weight Profiling' and is more complicated and has two parts (and two corresponding user inputs). This optimization ended up being fairly complicated so we will explain it later.
+
+The programmer would specify these optimizations inside a multiline comment with a special header. They would also specify the function name and the respective optimization. An int was used to make parsing easier. 0 for Optimize Immediately, 1 for Never optimize and 2 and 3 for Edge Weight Profiling. The two for Edge Weight Profiling have user inputs associated with them. For example:
 \begin{lstlisting}
 /*LEZ
 fname1,0;
 fname2,2,100;
+fname2,3,5;
 fname3,1;
 */
 \end{lstlisting}
-In this example fname will be optimized immediately, fname2 will be optimized after 100 runs, and fname3 will be never optimized. One could give several optimizations to one function by just putting the function name in several lines, however in the case of these three optimizations it doesn't make sense as they are opposing optimizations.
+In this example fname will be optimized immediately, fname2 will have the Edge Weight Profiling optimization with input of 100 and 5, and fname3 will be never optimized. One could give several optimizations to one function by just putting the function name in several lines as with fname2.
 
 We also wanted to provide an ability for the user to optimize the javascript without the developer. So we created a Chrome browser extension that would insert code into the javascript and cause our optimizations to be run. The browser inserted the javascript comments into a script tag at the beginning of html pages before the page was ran, allowing it to be reached first by V8. For a prototype we just allowed the user to have a set of saved optimizations that was then inserted into pages on a certain domain, however one can see how it could be extended to allow the user to specify different optimizations for different pages.
+
+\section{Edge Weight Profiling}
+This optimization is complicated. While ideally we would like to have a better user-facing optimization, we ran into trouble with the complexity of V8. However this does give the developer more power. By default Chrome will self optimize it's own function after certain conditions are hit. For example it runs X times or there is a loop with J runs in it. The way it does this is to set a counter to a set value. In this case it is 6144 and all other constants we mention have a modifyable whole-system V8 flag. The counter decrements whenever a function returns (to count the times a function is run) and when a backedge of a loop is taken. 
+
+The weight of the default return decrement is set to 6144/130.  This will for example cause a function to optimize after 130 iterations. Our first part of this optimization allows the user to set the 130 to something else. Therefore if a user sets the number lower, it will optimize quicker.
+
+The loop counter by default decrements by 1 or by amount of code in loop / 170, whichever is larger. Our second optimization allows the user to modify the weight of this counter. Therefore a larger weight will optimize faster.
+
+However though this logic is very evident in the code, we are getting some weird behavior from Chrome that we have not been able to figure out with limited time. For example sometimes Chrome will optimize a function that runs 1000 times. But if it has a while loop (that even happens very few times) it will not optimize even after 1000 runs. Also sometimes we saw inconsistencies even in this. This doesn't make any sense. It seems that maybe Chrome has a bug or some other limitation here. However our counters do affect the optimization. For example a high loop counter will cause it to always optimize anything with any loop. And if there is no loop, our code will optimize after whatever number the user picked runs. 
 
 \section{Implementation}
 The implementation of these optimizations is actually fairly simple. However V8 is a heavily regimented and organized code-base and we will explain the difficulties with this in the next section. In V8 there is a structure called the Isolate. The isolate seems to be a representation for a thread in V8 or when used by Chrome a 'tab' in the Chrome browser. It appears to have it's own heap and garbage collection. In our code we use the Isolate as similar to 'global state'.
 
-Our implementation first searches the first three characters of all multiline comments looking for the signature 'LEZ'. If this is found, it calls our code to begin parsing. It then adds these code into the isolate (which we added implementation to access the isolate at this point). We store a map in the isolate with the key of function name and the value a pointer to a malloced int *. The first int in the array is a bit map where each bit corresponds to whether an optimization is 'on' or 'off'. The other spots in the array are for extra information like for example the X in 'Deopt after X'. The locations of these values are hard-coded as defines to make it easy to access.
+Our implementation first searches the first three characters of all multiline comments looking for the signature 'LEZ'. If this is found, it calls our code to begin parsing. It then adds these code into the isolate (which we added implementation to access the isolate at this point). We store a map in the isolate with the key of function name and the value a pointer to a malloced int *. The first int in the array is a bit map where each bit corresponds to whether an optimization is 'on' or 'off'. The other spots in the array are for extra information like for example the uesr input in the Edge Weight Profile optimization. The locations of these values are hard-coded as defines to make it easy to access.
 
-The next part was fairly tricky as we wanted to avoid having to do string based map lookups every time we wanted to find out if a funciton needed to be optimized. So we solved this problem by attaching the optimization data to a per-function data structure. There were several options: Code object, JSFunction object, and SharedFunctionInfo objects. We decided to add it to SharedFunctionInfo because this object had a lot of information stored with it and was availabe from the JSFunction object. Also Code and JSFunction objects seem to be recreated and deleted often. We copied the int array into a structure that was used inside V8 to avoid lots of issues. This was done on creation of the SharedFunctionInfo and the information was pulled from the isolate with a map lookup. Note that we do have to do a hash map lookup once for every function even if it is not optimized.
+The next part was fairly tricky as we wanted to avoid having to do string based map lookups every time we wanted to find out if a function needed to be optimized. So we solved this problem by attaching the optimization data to a per-function data structure. There were several options: Code object, JSFunction object, and SharedFunctionInfo objects. We decided to add it to SharedFunctionInfo because this object had a lot of information stored with it and was availabe from the JSFunction object. Also Code and JSFunction objects seem to be recreated and deleted often. We copied the int array into a structure that was used inside V8 to avoid lots of issues. This was done on creation of the SharedFunctionInfo and the information was pulled from the isolate with a map lookup. Note that we do have to do a hash map lookup once for every function even if it is not optimized.
 
-Once we had the data inside the SharedFunctionInfo object we could use it to actually make the optimizations. For the 'Optimize Always' optimization we made it do the optimization immediately by modifying a check in V8 that optimizes if the v8 'always\_opt' flag is on. To never optimize we tricked V8 into thinking that it shouldn't optimize by setting a reason in the SharedFunctionInfo to have deoptimized. For the third optimization 'Optimized after X' we modifyed code that wrote assembly code that set the something similar to a weighted counter to use our weight instead of a default flag.
+Once we had the data inside the SharedFunctionInfo object we could use it to actually make the optimizations. For the Optimize Always optimization we made it do the optimization immediately by modifying a check in V8 that optimizes if the v8 'always\_opt' flag is on. To never optimize we tricked V8 into thinking that it shouldn't optimize by setting a reason in the SharedFunctionInfo to have deoptimized. For the third optimization, Edge Weight Profile, we modifyed code that wrote assembly code that set the weight value of the counters to look for the values from the object we added to SharedFunctionInfo.
 
-Another thing we implemented was to add a flag to turn our optimizations on and off. If the flag indicates not to use our optimizations, no parsing is done and a lookup into the map does not happen. This should allow us to test our implementation's overhead and test the optimizations comparead to none.
+Another thing we implemented was to add a flag to turn our optimizations on and off. If the flag indicates not to use our optimizations, no parsing is done and a lookup into the map does not happen and no checks to the object in SharedFunctionInfo. This should allow us to test our implementation's impact and test the optimizations comparead to none.
 
 \section {Difficulties}
 We ran into many difficulties with V8. V8 is a very complex and regimented codebase with very few comments or documentation regarding more than a general overview. Here are a few of the things we had to struggle with in V8.
@@ -67,7 +79,9 @@ We also struggled with the V8 garbage collector as they have special handle obje
 
 We ran into a lot of other issues with V8 including the PrintF (that they use for logging) not always actually printing out to stdout. Also it is very hard to narrow down page changes with V8 as this is handled in chrome and it just passes pieces of the javascript to V8 when needed. This makes sense as Chrome will load pieces of a page at a time but makes it hard for us to track timings.
 
-Another issue we had with V8 was caching. It caches code between refreshes which can make it hard to test things. Sometimes it also seemed to cache data between runs as it would act differently the first time you run a file verses the second and third time. It was very strange behavior. The biggest problem we had here was analysis as it was hard to get the compiler to act consistenly. 
+Another issue we had with V8 was caching. It was a pain to get it to refresh javascript, usually it just assumed it never changed. Most likely because it was looking for updates in the html page and not the javascript pages. The only way to refresh it was to load the js page and refresh.
+
+Another issue we had with Chrome was that it has so many pieces to the optimization that it was hard to figure out exactly what it was doing. Usually it seemed to follow simple rules but sometimes if you did things like add more functions it would no longer follow them. This made it hard to test our optimizations and the effect they had on Chrome.
 
 \section{Analysis and Results}
 First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. We also timed our overhead by timing the time it took to parse the extra code and the time it took to do the map lookups. This was very little overhead however we will include it in our results. All numbers are based off 6 runs.
@@ -112,8 +126,6 @@ We tested that this optimization works by running a function in a loop, 10 times
 
 One thing we noticed about V8 is that it won't optimize a function under normal conditions unless it has a while loop in it that runs more than 30 times. So our test case runs 4 nested loops that each run 30 times. This means that V8 will not optimize the function. We then have our script optimize after 6 runs. The timings are shown below.
 
-
-
 \subsection{Real Website Benchmarks}
 
 
@@ -122,15 +134,14 @@ It was interesting to see things we had learned in class in the V8 engine, and a
 TODO(MORE HERE)
 
 \section{Limitations}
+There are a few limitations with our implementation. One is that we currently just place our function names into the isolate. This means that these function names will be loaded on future pages :that are loaded in that tab. This is a performance issue (if too many people use it it will make the stored data larger) and also a security issue as it allows a page to slightly influence other pages that are loaded.
 
+Another issue is that Chrome's optimizations are very complex and we were unable to test infinite test cases. We know our optimizations work for simple cases but they might not be as effective for larger files. This is yet to be determined.
 
-\section{Future Work}
-There is a lot of future optimizations that we could explore with the framework. There are a lot of flags that are set as constants and it would be interesting to go through them and see if any can be turned into developer-defined constants. This depends of course on whether they are used at isolate-level or function-level. 
+Another issue is that all our tests were run on initial page loads. However V8 can cache code between runs so our optimizations may not help as much on a second run.
 
-We 
 \section{Conclusion}
-
-
+All in all our optimizations show that a little gain can be made from allowing user and devleopers to add their own hints to the compiler. We were unable to generate a lot of gain but it is possible with more knowledge of V8 that this would be a reasonable course of action. However V8 does do a really good job of guessing the optimizations itself so it may not be worth the hassle of implementing the code (safely) and putting out API and getting people educated on this new ability. 
 
 % Commands to include a figure:
 %\begin{figure}
