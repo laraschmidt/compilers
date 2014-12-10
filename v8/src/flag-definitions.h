@@ -107,11 +107,11 @@ struct MaybeBoolFlag {
 #ifndef LEZDEFINE
 #define LEZDEFINE
 // LEZ lez
-enum LezFlags { OPT, DEOPT, DEOPTAFTER };
+enum LezFlags { OPT, DEOPT, DEOPTAFTER, BACKWEIGHT };
 #define LEZARRAYSIZE 4 // First int is flags. If bit 0 is set, flagenum 0 is true.
 // If a flag has extra data it gets another spot. The first byte spot is defined by these flags
 #define DEOPTAFTERSPOT 1 // Depot Gets the first spot
-#define SECONDOPTSPOT 2
+#define BACKWEIGHTSPOT 2
 #define THIRDOPTSPOT 3
 
 #endif
