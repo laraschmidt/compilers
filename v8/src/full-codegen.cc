@@ -350,7 +350,7 @@ bool FullCodeGenerator::MakeCode(CompilationInfo* info) {
   LOG_CODE_EVENT(isolate, CodeEndLinePosInfoRecordEvent(*code, line_info));
   gettimeofday(&end, NULL);
  seconds  = end.tv_sec  - start.tv_sec;
- useconds = end.tv_usec - start.tv_usec;
+ useconds = (end.tv_sec - start.tv_sec)*1000000 +end.tv_usec - start.tv_usec;
  FILE* fp = fopen("eshatimings","a");
  if(useconds<0) useconds=0;
    fprintf(fp,"Esha_time Full compilation time is now %ld \n", useconds);
