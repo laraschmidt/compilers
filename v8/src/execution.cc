@@ -95,7 +95,7 @@ MUST_USE_RESULT static MaybeHandle<Object> Invoke(
         CALL_GENERATED_CODE(stub_entry, function_entry, func, recv, argc, argv);
 
     gettimeofday(&end, NULL);
-useconds = end.tv_usec - start.tv_usec;
+useconds = (end.tv_sec - start.tv_sec)*1000000 + end.tv_usec - start.tv_usec;
 if(useconds<0) useconds=0;
 FILE* fp = fopen("eshatimings","a");
 //function->PrintName(fp);
