@@ -50,27 +50,49 @@ The implementation of these optimizations is actually fairly simple. However V8 
 
 Our implementation first searches the first three characters of all multiline comments looking for the signature 'LEZ'. If this is found, it calls our code to begin parsing. It then adds these code into the isolate (which we added implementation to access the isolate at this point). We store a map in the isolate with the key of function name and the value a pointer to a malloced int *. The first int in the array is a bit map where each bit corresponds to whether an optimization is 'on' or 'off'. The other spots in the array are for extra information like for example the X in 'Deopt after X'. The locations of these values are hard-coded as defines to make it easy to access.
 
-The next part was fairly tricky as we wanted to avoid having to do string based map lookups every time we wanted to find out if a funciton needed to be optimized. So we solved this problem by attaching the optimization data to a per-function data structure. There were several options: Code object, JSFunction object, and SharedFunctionInfo objects. All of these structures were heavily regimented as their total size was kept as well as offsets to each and there were requirements on their data. We decided to add it to SharedFunctionInfo because this object had a lot of information stored with it and was availabe from the JSFunction object. Also Code and JSFunction objects seem to be recreated and deleted often. We had to copy the int array into a structure that was used inside V8 and followed the requirements. This was done on creation of the SharedFunctionInfo and the information was pulled from the isolate with a map lookup. Note that we do have to do a hash map lookup for every function even if it is not optimized.
+The next part was fairly tricky as we wanted to avoid having to do string based map lookups every time we wanted to find out if a funciton needed to be optimized. So we solved this problem by attaching the optimization data to a per-function data structure. There were several options: Code object, JSFunction object, and SharedFunctionInfo objects. We decided to add it to SharedFunctionInfo because this object had a lot of information stored with it and was availabe from the JSFunction object. Also Code and JSFunction objects seem to be recreated and deleted often. We copied the int array into a structure that was used inside V8 to avoid lots of issues. This was done on creation of the SharedFunctionInfo and the information was pulled from the isolate with a map lookup. Note that we do have to do a hash map lookup once for every function even if it is not optimized.
 
 Once we had the data inside the SharedFunctionInfo object we could use it to actually make the optimizations. For the 'Optimize Always' optimization we made it do the optimization immediately by modifying a check in V8 that optimizes if the v8 'always\_opt' flag is on. To never optimize we tricked V8 into thinking that it shouldn't optimize by setting a reason in the SharedFunctionInfo to have deoptimized. For the third optimization 'Optimized after X' we modifyed code that wrote assembly code that set the something similar to a weighted counter to use our weight instead of a default flag.
 
+Another thing we implemented was to add a flag to turn our optimizations on and off. If the flag indicates not to use our optimizations, no parsing is done and a lookup into the map does not happen. This should allow us to test our implementation's overhead and test the optimizations comparead to none.
+
 \section {Difficulties}
+We ran into many difficulties with V8. V8 is a very complex and regimented codebase with very few comments or documentation regarding more than a general overview. Here are a few of the things we had to struggle with in V8.
 
+For one, SharedFunctionInfo, JSFunction, and Code are very regimented data structures. Their data is  accessed by static offsets and their total size is used. Also there are requirements on their data that it be a heap object and it seems to create some sort of snapshot and has requirements regarding that. Also since V8 runs it's own code during compile, it would cause segfaults with no useable output.
 
+Another difficulty with V8 is that it takes forever to compile. It took 10 minutes to compile and link a header file and on Esha's computer it took 15 minutes to even compile and link a change to a cc file.
+
+We also struggled with the V8 garbage collector as they have special handle objects to handle garbage collected objects. This is to be able to change pointers when sweeping the objects. However these are not able to be put into a map and caused lots of issues which is why we had to use a simple malloced int[] and copy it into a V8 heap object when copying into the SharedFunctionInfo. 
+
+We ran into a lot of other issues with V8 including the PrintF (that they use for logging) not always actually printing out to stdout. Also it is very hard to narrow down page changes with V8 as this is handled in chrome and it just passes pieces of the javascript to V8 when needed. This makes sense as Chrome will load pieces of a page at a time but makes it hard for us to track timings.
 
 \section{Analysis and Results}
+First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. 
+
+To make our analysis clearer we will point out that V8 will automatically attempt to optimize a function after a certain number of consistent runs. This default flag is set to 130 though at times it seems to take more runs. Note that this 130 is what our 'optimize after X' flag changes. Default V8 will never optimize a function that runs less than 130 iterations. We use this to prove that some of our optimizations work.
 
 \subsection{Opt 1: Optimize Immediately}
+We were able to verify that this optimization worked by picking a simple javascript that ran a simple function 10 times. V8 logged that it had optimized the function and our supplemental logging backed up our  However we noticed upon further analysis that it was deoptimizing the code immediately when it first ran it. On further inspection the reason for this was that the function did not have enough information. This makes sense because before a function is run you know nothing about the types. However we are not sure why it optimized successfully before it deoptimized instead of just failing to optimize. We were also able to print out the reason for deoptimization in the previous code and they were things regarding not enough information or overflow. To test our hypothesis, we attempted to optimize a function that just returned 3. V8 was able to optimize and did not deoptimize. This makes sense because it knows all the information regarding the function. On further analysis it will deoptimize if any variable is used on the right had side of an assignment. We were also able to print out the reason for deoptimization in the previous code and it was most often "Insufficient type feedback for LHS of binary operation" , though we also saw other issues in more complex code.
+
+Because the limitations of this optimization are not very interesting, we did not do futher analysis. However one can easily implement 'Optimize immediately' as something like 'Optimize after 10 runs'. TODO(laraschmidt) change this to 1 if it works but not sure if it does because no enough time.
+
 \subsection{Opt 2: Never Optimize}
+This optimization was the easiset to implement and test. V8 prints out that it wanted to optimize a function but couldn't and prints out the reason that we gave it. 
+
 \subsection{Opt 3: Optimized after k runs}
 
 \subsection{Real Website Benchmarks}
 
 
 \section {What we learned}
-knowledge about v8
+It was interesting to see things we had learned in class in the V8 engine, and also how it was different. For example how their garbage collector uses Handles as was mentioned in the slides.
+TODO(MORE HERE)
 
 \section{Future Work}
+There is a lot of future optimizations that we could explore with the framework. There are a lot of flags that are set as constants and it would be interesting to go through them and see if any can be turned into developer-defined constants. This depends of course on whether they are used at isolate-level or function-level. 
+
+We 
 \section{Conclusion}
 
 
