@@ -9,6 +9,7 @@
 #include "src/conversions.h"
 #include "src/isolate-inl.h"
 #include "src/macro-assembler.h"
+#include "sys/time.h"
 
 namespace v8 {
 namespace internal {
@@ -1228,6 +1229,9 @@ MaybeHandle<Object> Factory::NewError(const char* constructor,
 
 inline void AddFlags(Handle<SharedFunctionInfo> info,
                      Isolate * iso){
+  struct timeval start, end;
+  long mtime, seconds, useconds;    
+  gettimeofday(&start, NULL);
   Object * s = info->name();
   // To remove a ton of anonymous fcns
   if(!s->IsString() || ((String*) s)->length() == 0)
@@ -1243,6 +1247,13 @@ inline void AddFlags(Handle<SharedFunctionInfo> info,
     }
     info->set_lez(*fa);
   }
+  
+  gettimeofday(&end, NULL);
+  useconds = end.tv_usec - start.tv_usec;
+  if(useconds<0) useconds=0;
+  FILE* fp = fopen("eshatimings","a");
+  fprintf(fp," Esha_time LEZ time is now %ld \n",  useconds);
+  fclose(fp);
 }
 
 void Factory::InitializeFunction(Handle<JSFunction> function,
