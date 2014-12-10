@@ -67,8 +67,10 @@ We also struggled with the V8 garbage collector as they have special handle obje
 
 We ran into a lot of other issues with V8 including the PrintF (that they use for logging) not always actually printing out to stdout. Also it is very hard to narrow down page changes with V8 as this is handled in chrome and it just passes pieces of the javascript to V8 when needed. This makes sense as Chrome will load pieces of a page at a time but makes it hard for us to track timings.
 
+Another issue we had with V8 was caching. It caches code between refreshes which can make it hard to test things. Sometimes it also seemed to cache data between runs as it would act differently the first time you run a file verses the second and third time. It was very strange behavior. The biggest problem we had here was analysis as it was hard to get the compiler to act consistenly. 
+
 \section{Analysis and Results}
-First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. We also timed our overhead by timing the time it took to parse the extra code and the time it took to do the map lookups. This was very little overhead however we will include it in our results.
+First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. We also timed our overhead by timing the time it took to parse the extra code and the time it took to do the map lookups. This was very little overhead however we will include it in our results. All numbers are based off 6 runs.
 
 To make our analysis clearer we will point out that V8 will automatically attempt to optimize a function after a certain number of consistent runs. This default flag is set to 130 though at times it seems to take more runs. Note that this 130 is what our 'optimize after X' flag changes. Default V8 will never optimize a function that runs less than 130 iterations. We use this to prove that some of our optimizations work.
 
@@ -90,9 +92,27 @@ This optimization was the easiset to implement and test. V8 prints out that it w
 
 The original run was a lot shorter than our run because that function was optimized. This shows that our deoptimization function works.
 
-Next we will try to find a case where our optimization actually causes faster execution. 
+Next we will try to find a case where our optimization actually causes faster execution. To test this, we create 9 functions that did simple operations including a small while loop of 100. We then ran each of these functions 135 times. This would cause the functions to optimize in the original case and not optimize in our case. This should save us on optimization time.\\
+
+\begin{tabular}{ l c r }
+  & \textbf{Unmodified} & \textbf{Modified} \\
+\textbf{Execution} &  1744.1$\pm$ 246.9 ms &  1600.7 $\pm$ 207.4 ms \\
+\textbf{Opt Compile} & 85.8$\pm$  17.7ms & 58.72 $\pm$ 16.8 ms \\
+\textbf{Full Compile} &  83.55$\pm$ 12.8 & 93.03 $\pm$ 14.14ms\\ 
+\textbf{Overhead} &  0   &   .837 $\pm$ .810 ms  \\
+\textbf{Sum} & 1913.4 $\pm$ 231.7 ms & 1753.317 $\pm$ 231.69 ms \\
+
+\end{tabular}\\
+
+These results are a little confusing. We can see that we gain some time on the fact that we don't optimize. However we seem to be faster for execution as well. One pattern that we noticed was that execution seemed to take a little longer when an optimization was done. We are not sure why this is. It is possible it is  the cost of catching that it needs to be optimized and setting it to be optimized. However one may notice that it is only around 1 standard devation higher, so it is not that much. Even with just the improvement in compile time, this optimization would be successful. 
+
 
 \subsection{Opt 3: Optimized after k runs}
+We tested that this optimization works by running a function in a loop, 10 times. Without our script it shouldn't have optimized. With our script, it should optimize. We saw this in the logs that it was optimized as it should.
+
+One thing we noticed about V8 is that it won't optimize a function under normal conditions unless it has a while loop in it that runs more than 30 times. So our test case runs 4 nested loops that each run 30 times. This means that V8 will not optimize the function. We then have our script optimize after 6 runs. The timings are shown below.
+
+
 
 \subsection{Real Website Benchmarks}
 
@@ -100,6 +120,9 @@ Next we will try to find a case where our optimization actually causes faster ex
 \section {What we learned}
 It was interesting to see things we had learned in class in the V8 engine, and also how it was different. For example how their garbage collector uses Handles as was mentioned in the slides.
 TODO(MORE HERE)
+
+\section{Limitations}
+
 
 \section{Future Work}
 There is a lot of future optimizations that we could explore with the framework. There are a lot of flags that are set as constants and it would be interesting to go through them and see if any can be turned into developer-defined constants. This depends of course on whether they are used at isolate-level or function-level. 
