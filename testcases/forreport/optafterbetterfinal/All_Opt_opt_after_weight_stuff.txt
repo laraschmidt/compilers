@@ -1,0 +1,35 @@
+Full compilation time is 51 ms  360 us 
+Opt compilation time is 44 ms  126 us 
+Our overhead time is 0 ms  318 us 
+Total execution time is 1066 ms  92 us 
+Total time is 1161 ms  78 us 
+
+Full compilation time is 54 ms  339 us 
+Opt compilation time is 48 ms  512 us 
+Our overhead time is 0 ms  323 us 
+Total execution time is 1109 ms  16 us 
+Total time is 1212 ms  67 us 
+
+Full compilation time is 57 ms  848 us 
+Opt compilation time is 40 ms  208 us 
+Our overhead time is 0 ms  394 us 
+Total execution time is 1201 ms  70 us 
+Total time is 1299 ms  26 us 
+
+Full compilation time is 61 ms  868 us 
+Opt compilation time is 55 ms  772 us 
+Our overhead time is 0 ms  340 us 
+Total execution time is 1168 ms  80 us 
+Total time is 1286 ms  20 us 
+
+Full compilation time is 60 ms  324 us 
+Opt compilation time is 43 ms  705 us 
+Our overhead time is 0 ms  344 us 
+Total execution time is 1117 ms  12 us 
+Total time is 1221 ms  41 us 
+
+Full compilation time is 50 ms  101 us 
+Opt compilation time is 42 ms  463 us 
+Our overhead time is 1 ms  779 us 
+Total execution time is 1100 ms  45 us 
+Total time is 1193 ms  9 us 

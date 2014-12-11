@@ -1,0 +1,5 @@
+Full compilation time is 54 ms  339 us 
+Opt compilation time is 48 ms  512 us 
+Our overhead time is 0 ms  323 us 
+Total execution time is 1109 ms  16 us 
+Total time is 1212 ms  67 us 
