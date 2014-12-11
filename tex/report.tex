@@ -80,7 +80,7 @@ We ran into a lot of other issues with V8 including the PrintF (that they use fo
 Another issue we had with Chrome was that it has so many pieces to the optimization that it was hard to figure out exactly what it was doing. Usually it seemed to follow simple rules but sometimes if you did things like add more functions it would no longer follow them. This made it hard to test our optimizations and the effect they had on Chrome.
 
 \section{Analysis and Results}
-First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. We also timed our overhead by timing the time it took to parse the extra code and the time it took to do the map lookups. This was very little overhead however we will include it in our results. All numbers are based off an average and stddev of 6 runs.
+First we will explain our timing method used here. We have placed timers to measure the compile time of every function. We have also placed timers to count the time it takes to optimize a function. We also placed a timer to track the complete execution time. This should allow us to evaluate and prove that each of our optimizations works. We also timed our overhead by timing the time it took to parse the extra code and the time it took to do the map lookups. This was very little overhead however we will include it in our results. All numbers are based off an average and stddev of 6 runs. The benchmarks were all run on the same laptop with 8GB memory and i5 quad core.
 
 \subsection{Opt 1: Optimize Immediately}
 We were able to verify that this optimization worked by picking a simple javascript that would not normally be optimized in V8. The examplewe used is a simple function 10 times. V8 logged that it had optimized the function and our supplemental logging backed up our results.  However we noticed upon further analysis that it was deoptimizing the code immediately when it first ran it. On further inspection the reason for this was that the function did not have enough information. This makes sense because before a function is run you know nothing about the types. However we are not sure why Chrome chose to optimize successfully before it deoptimized instead of just failing to optimize. To test our hypothesis, we attempted to optimize a function that just returned 3. V8 was able to optimize and did not deoptimize. This makes sense because it knows all the information regarding the function. On further analysis it will deoptimize if any variable is used on the right had side of an assignment. We were also able to print out the reason for deoptimization in the previous code and it was most often "Insufficient type feedback for LHS of binary operation" , though we also saw other issues in more complex code.
@@ -109,7 +109,6 @@ Next we will try to find a case where our optimization actually causes faster ex
 \textbf{Full Compile} &  83.55$\pm$ 12.8 & 93.03 $\pm$ 14.14ms\\ 
 \textbf{Overhead} &  0   &   .837 $\pm$ .810 ms  \\
 \textbf{Sum} & 1913.4 $\pm$ 231.7 ms & 1753.317 $\pm$ 231.69 ms \\
-
 \end{tabular}\\
 
 These results are a little confusing. We can see that we gain some time on the fact that we don't optimize. However we seem to be faster for execution as well. One pattern that we noticed was that execution seemed to take a little longer when an optimization was done. We are not sure why this is. It is possible it is  the cost of catching that it needs to be optimized and setting it to be optimized. However one may notice that it is only around 1 standard devation higher, so it is not that much. Even with just the improvement in compile time, this optimization would be successful. 
@@ -118,8 +117,19 @@ These results are a little confusing. We can see that we gain some time on the f
 \subsection{Opt 3: Optimized after k runs}
 We tested that this optimization works by running many different kinds of codes and verifying that they optimized when normally they wouldn't. 
 
+A good use of this optimization is if your function runs just enough times to be optimized. In this case default V8 would optimize but then quickly end and not get a good result. Our test case was 20 of the same function. Each function did a few simple calculations and a while loop that ran to 30. Each function was run 550 times. We gave the first input as 10 and the second input as 5. This should cause our function to optimize very quickly. The results are shown below.
 
-\subsection{Real Website Benchmarks}
+\begin{tabular}{ l c r }
+  & \textbf{Unmodified} & \textbf{Modified} \\
+\textbf{Execution} &  1217.4  $\pm$  70.5 ms &  1126.9  $\pm$  44.8 ms \\
+\textbf{Compile} & 99.4  $\pm$  9.3 ms & 101.8  $\pm$  8.1 ms \\
+\textbf{Overhead} &  0   &   0.583  $\pm$  0.54 ms  \\
+\textbf{Sum} & 1316.8  $\pm$  78.2 ms & 1229.24  $\pm$  48.8 ms \\
+\end{tabular}\\
+
+As you can see, both default and ours optimize. However we have less execution time because our optimization was done earlier.
+
+
 
 
 \section {What we learned}

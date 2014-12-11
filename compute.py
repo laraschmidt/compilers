@@ -32,6 +32,6 @@ print comp
 print fcomp
 
 for i in [exect, ocomp, fcomp, overhead, comp, summ]:
-  print numpy.average(i), " +/- " , numpy.std(i);
+  print numpy.average(i), " $\pm$ " , numpy.std(i);
       
       
